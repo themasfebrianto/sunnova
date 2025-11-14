@@ -19,11 +19,11 @@ class UserGameStatsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        xp,
-        level,
-        currentStreak,
-        longestStreak,
-        lessonsCompleted,
-        quizzesPassed,
-      ];
+    xp,
+    level,
+    currentStreak,
+    longestStreak,
+    lessonsCompleted,
+    quizzesPassed,
+  ];
 }

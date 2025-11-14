@@ -21,14 +21,14 @@ class LessonUnitEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        description,
-        content,
-        videoUrl,
-        audioUrl,
-        durationMinutes,
-      ];
+    id,
+    title,
+    description,
+    content,
+    videoUrl,
+    audioUrl,
+    durationMinutes,
+  ];
 }
 
 class UserLessonProgressEntity extends Equatable {
@@ -45,10 +45,5 @@ class UserLessonProgressEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        userId,
-        lessonId,
-        isCompleted,
-        completedAt,
-      ];
+  List<Object?> get props => [userId, lessonId, isCompleted, completedAt];
 }

@@ -1,7 +1,8 @@
 import 'package:sunnova_app/features/auth/domain/entities/user_entity.dart'; // Added missing import
 
 class UserModel extends UserEntity {
-  UserModel({ // Removed const
+  UserModel({
+    // Removed const
     required super.uid,
     super.email,
     super.displayName,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunnova_app/features/course/presentation/notifiers/course_notifier.dart';
 import 'package:sunnova_app/features/course/presentation/widgets/lesson_unit_card.dart'; // Import LessonUnitCard
+import 'package:sunnova_app/features/course/presentation/pages/lesson_content_page.dart'; // Import LessonContentPage
 
 class CourseDetailPage extends StatefulWidget {
   final String courseModuleId; // ID of the course module to display
@@ -17,11 +18,17 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final courseNotifier = Provider.of<CourseNotifier>(context, listen: false);
+      final courseNotifier = Provider.of<CourseNotifier>(
+        context,
+        listen: false,
+      );
       courseNotifier.fetchCourseDetail(widget.courseModuleId);
       courseNotifier.fetchLessonUnits(widget.courseModuleId);
       // Assuming a user ID is available globally or passed
-      courseNotifier.fetchUserProgress('current_user_id', widget.courseModuleId);
+      courseNotifier.fetchUserProgress(
+        'current_user_id',
+        widget.courseModuleId,
+      );
     });
   }
 
@@ -29,7 +36,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course Detail'),
+        title: Text(
+          'Course Detail',
+          style: Theme.of(context).textTheme.titleLarge, // Use theme typography
+        ),
       ),
       body: Consumer<CourseNotifier>(
         builder: (context, courseNotifier, child) {
@@ -37,7 +47,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (courseNotifier.state.errorMessage != null) {
-            return Center(child: Text('Error: ${courseNotifier.state.errorMessage}'));
+            return Center(
+              child: Text('Error: ${courseNotifier.state.errorMessage}'),
+            );
           }
 
           final courseModule = courseNotifier.state.selectedModule;
@@ -46,8 +58,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           }
 
           // Calculate progress
-          final int completedLessons = courseNotifier.state.units.where((unit) =>
-              courseNotifier.state.progressMap[unit.id]?.isCompleted == true).length;
+          final int completedLessons = courseNotifier.state.units
+              .where(
+                (unit) =>
+                    courseNotifier.state.progressMap[unit.id]?.isCompleted ==
+                    true,
+              )
+              .length;
           final int totalLessons = courseNotifier.state.units.length;
 
           return Stack(
@@ -72,7 +89,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             children: [
                               Text(
                                 courseModule.title,
-                                style: Theme.of(context).textTheme.headlineSmall,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall,
                               ),
                               Text(
                                 courseModule.description,
@@ -97,14 +116,25 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       itemCount: courseNotifier.state.units.length,
                       itemBuilder: (context, index) {
                         final lessonUnit = courseNotifier.state.units[index];
-                        final isCompleted = courseNotifier.state.progressMap[lessonUnit.id]?.isCompleted ?? false;
+                        final isCompleted =
+                            courseNotifier
+                                .state
+                                .progressMap[lessonUnit.id]
+                                ?.isCompleted ??
+                            false;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: LessonUnitCard(
                             lessonUnit: lessonUnit,
                             isCompleted: isCompleted,
                             onTap: () {
-                              // Navigate to LessonContentPage
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => LessonContentPage(
+                                    lessonId: lessonUnit.id,
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         );
@@ -119,10 +149,41 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 right: 16,
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    // Navigate to the first incomplete lesson or first lesson
+                    // Find the first incomplete lesson
+                    final firstIncompleteLesson = courseNotifier.state.units
+                        .firstWhere(
+                          (unit) =>
+                              !(courseNotifier
+                                      .state
+                                      .progressMap[unit.id]
+                                      ?.isCompleted ??
+                                  false),
+                          orElse: () => courseNotifier
+                              .state
+                              .units
+                              .first, // If all completed, go to first
+                        );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => LessonContentPage(
+                          lessonId: firstIncompleteLesson.id,
+                        ),
+                      ),
+                    );
                   },
-                  label: const Text('Start Learning'),
-                  icon: const Icon(Icons.play_arrow),
+                  label: Text(
+                    'Start Learning',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                  ),
+                  icon: const Icon(Icons.play_arrow, color: Colors.white),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      16,
+                    ), // Use radiusLarge from theme
+                  ),
                 ),
               ),
             ],

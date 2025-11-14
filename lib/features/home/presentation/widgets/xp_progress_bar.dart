@@ -27,21 +27,29 @@ class XPProgressBar extends StatelessWidget {
       margin: EdgeInsets.zero,
       // Card theme is applied globally in main.dart
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Use spacing constants if defined globally
+        padding: const EdgeInsets.all(
+          16.0,
+        ), // Use spacing constants if defined globally
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Level $level - $currentXp/$xpForNextLevel XP', // Display actual XP progress
-              style: Theme.of(context).textTheme.titleSmall, // Use theme typography
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall, // Use theme typography
             ),
             const SizedBox(height: 10), // Use spacing constants
             ClipRRect(
-              borderRadius: BorderRadius.circular(5), // Use radius constants if defined globally
+              borderRadius: BorderRadius.circular(
+                5,
+              ), // Use radius constants if defined globally
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                valueColor: AlwaysStoppedAnimation<Color>(xpGradient.colors.first), // Use first color of gradient for now
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  xpGradient.colors.first,
+                ), // Use first color of gradient for now
                 minHeight: 10,
                 // LinearProgressIndicator does not directly support gradients.
                 // A custom painter or a ShaderMask might be needed for a true gradient.

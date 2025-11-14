@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunnova_app/features/auth/presentation/notifiers/auth_notifier.dart';
 import 'package:sunnova_app/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sunnova_app/features/auth/presentation/pages/login_page.dart';
 
 enum Gender { male, female }
 
@@ -18,7 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   Gender? _selectedGender;
 
   @override
@@ -33,9 +33,9 @@ class _RegisterPageState extends State<RegisterPage> {
   void _register() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedGender == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a gender')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Please select a gender')));
         return;
       }
 
@@ -49,12 +49,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (authNotifier.state.status == AuthStatus.authenticated) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration Successful! Please login.')),
+          const SnackBar(
+            content: Text('Registration Successful! Please login.'),
+          ),
         );
         Navigator.of(context).pop(); // Go back to login page
       } else if (authNotifier.state.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authNotifier.state.errorMessage ?? 'Registration Failed')),
+          SnackBar(
+            content: Text(
+              authNotifier.state.errorMessage ?? 'Registration Failed',
+            ),
+          ),
         );
       }
     }
@@ -63,9 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
+      appBar: AppBar(title: const Text('Register')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -74,9 +78,12 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text( // Removed const
+                Text(
+                  // Removed const
                   'Create Your Account',
-                  style: Theme.of(context).textTheme.titleLarge, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge, // Use theme typography
                 ),
                 const SizedBox(height: 40),
                 AuthTextField(
@@ -137,36 +144,49 @@ class _RegisterPageState extends State<RegisterPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gender', style: Theme.of(context).textTheme.bodyMedium), // Use theme typography
+                    Text(
+                      'Gender',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ), // Use theme typography
                     Row(
                       children: [
                         Expanded(
-                          child: RadioListTile<Gender>(
-                            title: const Text('Male'),
-                            value: Gender.male,
-                            groupValue: _selectedGender,
-                            onChanged: (Gender? value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
-                            },
+                          child: Row(
+                            children: [
+                              Radio<Gender>(
+                                value: Gender.male,
+                                groupValue: _selectedGender,
+                                onChanged: (Gender? value) {
+                                  setState(() {
+                                    _selectedGender = value;
+                                  });
+                                },
+                              ),
+                              const Text('Male'),
+                            ],
                           ),
                         ),
                         Expanded(
-                          child: RadioListTile<Gender>(
-                            title: const Text('Female'),
-                            value: Gender.female,
-                            groupValue: _selectedGender,
-                            onChanged: (Gender? value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
-                            },
+                          child: Row(
+                            children: [
+                              Radio<Gender>(
+                                value: Gender.female,
+                                groupValue: _selectedGender,
+                                onChanged: (Gender? value) {
+                                  setState(() {
+                                    _selectedGender = value;
+                                  });
+                                },
+                              ),
+                              const Text('Female'),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    if (_selectedGender == null && _formKey.currentState != null && !_formKey.currentState!.validate())
+                    if (_selectedGender == null &&
+                        _formKey.currentState != null &&
+                        !_formKey.currentState!.validate())
                       const Padding(
                         padding: EdgeInsets.only(left: 12.0),
                         child: Text(
@@ -180,9 +200,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 Consumer<AuthNotifier>(
                   builder: (context, authNotifier, child) {
                     return ElevatedButton(
-                      onPressed: authNotifier.state.status == AuthStatus.loading ? null : _register,
+                      onPressed: authNotifier.state.status == AuthStatus.loading
+                          ? null
+                          : _register,
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50), // Full width button
+                        minimumSize: const Size(
+                          double.infinity,
+                          50,
+                        ), // Full width button
                       ),
                       child: authNotifier.state.status == AuthStatus.loading
                           ? const CircularProgressIndicator(color: Colors.white)

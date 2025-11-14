@@ -24,7 +24,8 @@ class _SplashPageState extends State<SplashPage> {
     final prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('currentUserId');
 
-    Future.delayed(const Duration(seconds: 2), () async { // Made async to await authNotifier call
+    Future.delayed(const Duration(seconds: 2), () async {
+      // Made async to await authNotifier call
       if (!mounted) return;
 
       final authNotifier = Provider.of<AuthNotifier>(context, listen: false);
@@ -52,7 +53,8 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Removed const
+    return Scaffold(
+      // Removed const
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

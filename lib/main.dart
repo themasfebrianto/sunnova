@@ -13,7 +13,6 @@ import 'package:sunnova_app/features/quiz/presentation/notifiers/quiz_notifier.d
 import 'package:sunnova_app/features/profile/presentation/notifiers/profile_notifier.dart';
 import 'package:sunnova_app/features/leaderboard/presentation/notifiers/leaderboard_notifier.dart';
 
-import 'package:sunnova_app/features/auth/presentation/pages/splash_page.dart';
 import 'package:sunnova_app/features/home/presentation/pages/home_page.dart'; // Import HomePage
 import 'package:sunnova_app/injection_container.dart'
     as di; // Import as di (dependency injection)
@@ -152,7 +151,7 @@ class MyApp extends StatelessWidget {
     // === Elevation Shadows (Soft) ===
     final List<BoxShadow> elevationLow = [
       BoxShadow(
-        color: Colors.black.withOpacity(0.04),
+        color: Colors.black.withAlpha((255 * 0.04).round()),
         blurRadius: 8,
         offset: Offset(0, 2),
       ),
@@ -160,7 +159,7 @@ class MyApp extends StatelessWidget {
 
     final List<BoxShadow> elevationMedium = [
       BoxShadow(
-        color: Colors.black.withOpacity(0.06),
+        color: Colors.black.withAlpha((255 * 0.06).round()),
         blurRadius: 12,
         offset: Offset(0, 4),
       ),
@@ -168,7 +167,7 @@ class MyApp extends StatelessWidget {
 
     final List<BoxShadow> elevationHigh = [
       BoxShadow(
-        color: Colors.black.withOpacity(0.08),
+        color: Colors.black.withAlpha((255 * 0.08).round()),
         blurRadius: 16,
         offset: Offset(0, 8),
       ),
@@ -176,7 +175,7 @@ class MyApp extends StatelessWidget {
 
     final List<BoxShadow> elevationXL = [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withAlpha((255 * 0.1).round()),
         blurRadius: 24,
         offset: Offset(0, 12),
       ),
@@ -329,8 +328,8 @@ class MyApp extends StatelessWidget {
           onTertiary: Colors.white,
           error: errorRed,
           onError: Colors.white,
-          background: backgroundColor,
-          onBackground: textPrimary,
+          surfaceContainerLowest: backgroundColor,
+          onSurfaceVariant: textPrimary,
           surface: surfaceColor,
           onSurface: textPrimary,
           surfaceContainer: cardColor, // Use cardColor for surfaceContainer

@@ -12,7 +12,12 @@ class RegisterUser extends UseCase<UserEntity, RegisterUserParams> {
 
   @override
   Future<Either<Failure, UserEntity>> call(RegisterUserParams params) async {
-    return await repository.registerUser(params.name, params.email, params.password, params.gender);
+    return await repository.registerUser(
+      params.name,
+      params.email,
+      params.password,
+      params.gender,
+    );
   }
 }
 

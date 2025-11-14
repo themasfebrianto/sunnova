@@ -26,18 +26,15 @@ class HomeState {
   HomeState loaded({
     UserGameStatsEntity? userStats,
     List<CourseModuleEntity>? modules,
-  }) =>
-      HomeState(
-        userStats: userStats ?? this.userStats,
-        modules: modules ?? this.modules,
-        isLoading: false,
-      );
+  }) => HomeState(
+    userStats: userStats ?? this.userStats,
+    modules: modules ?? this.modules,
+    isLoading: false,
+  );
 
   // Error state
-  HomeState error(String message) => HomeState(
-        errorMessage: message,
-        isLoading: false,
-      );
+  HomeState error(String message) =>
+      HomeState(errorMessage: message, isLoading: false);
 }
 
 class HomeNotifier extends ChangeNotifier {

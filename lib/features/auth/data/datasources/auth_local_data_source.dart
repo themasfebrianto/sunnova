@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart' hide DatabaseException;
 import 'package:sunnova_app/core/db/database_helper.dart';
-import 'package:sunnova_app/core/error/exceptions.dart' as core_exceptions; // Alias core exceptions
+import 'package:sunnova_app/core/error/exceptions.dart'
+    as core_exceptions; // Alias core exceptions
 import 'package:sunnova_app/features/auth/data/models/user_model.dart';
 
 abstract class AuthLocalDataSource {
@@ -45,11 +46,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> deleteUser(String uid) async {
     final db = await databaseHelper.database;
-    await db.delete(
-      'users',
-      where: 'uid = ?',
-      whereArgs: [uid],
-    );
+    await db.delete('users', where: 'uid = ?', whereArgs: [uid]);
   }
 
   @override
@@ -57,7 +54,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     final db = await databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'users',
-      where: 'email = ? AND password = ?', // In a real app, password should be hashed
+      where:
+          'email = ? AND password = ?', // In a real app, password should be hashed
       whereArgs: [email, password],
     );
     if (maps.isNotEmpty) {
@@ -73,7 +71,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await db.insert(
       'users',
       user.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.abort, // Abort if user with same uid/email exists
+      conflictAlgorithm:
+          ConflictAlgorithm.abort, // Abort if user with same uid/email exists
     );
   }
 

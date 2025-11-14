@@ -23,13 +23,13 @@ class CourseModuleEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        description,
-        imageUrl,
-        requiredXpToUnlock,
-        isLocked,
-        totalLessons,
-        completedLessons,
-      ];
+    id,
+    title,
+    description,
+    imageUrl,
+    requiredXpToUnlock,
+    isLocked,
+    totalLessons,
+    completedLessons,
+  ];
 }

@@ -33,20 +33,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sunnova App'),
-      ),
+      appBar: AppBar(title: const Text('Sunnova App')),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events),
             label: 'Leaderboard',
@@ -60,7 +52,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _HomeContent extends StatefulWidget { // Changed to StatefulWidget to use initState
+class _HomeContent extends StatefulWidget {
+  // Changed to StatefulWidget to use initState
   @override
   State<_HomeContent> createState() => _HomeContentState();
 }
@@ -72,7 +65,9 @@ class _HomeContentState extends State<_HomeContent> {
     // Fetch data when the widget is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeNotifier = Provider.of<HomeNotifier>(context, listen: false);
-      homeNotifier.fetchUserStats('current_user_id'); // Replace with actual user ID
+      homeNotifier.fetchUserStats(
+        'current_user_id',
+      ); // Replace with actual user ID
       homeNotifier.fetchCourseModules();
     });
   }
@@ -86,7 +81,9 @@ class _HomeContentState extends State<_HomeContent> {
           return const Center(child: CircularProgressIndicator());
         }
         if (homeNotifier.state.errorMessage != null) {
-          return Center(child: Text('Error: ${homeNotifier.state.errorMessage}'));
+          return Center(
+            child: Text('Error: ${homeNotifier.state.errorMessage}'),
+          );
         }
 
         return SingleChildScrollView(
@@ -100,10 +97,14 @@ class _HomeContentState extends State<_HomeContent> {
               ),
               const SizedBox(height: 20),
               // Placeholder for StreakCard
-              StreakCard(userStats: homeNotifier.state.userStats), // Pass userStats
+              StreakCard(
+                userStats: homeNotifier.state.userStats,
+              ), // Pass userStats
               const SizedBox(height: 20),
               // Placeholder for XPProgressBar
-              XPProgressBar(userStats: homeNotifier.state.userStats), // Pass userStats
+              XPProgressBar(
+                userStats: homeNotifier.state.userStats,
+              ), // Pass userStats
               const SizedBox(height: 20),
               Text(
                 'Course Modules',
@@ -114,20 +115,27 @@ class _HomeContentState extends State<_HomeContent> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: homeNotifier.state.modules.length, // Use actual module count
+                itemCount: homeNotifier
+                    .state
+                    .modules
+                    .length, // Use actual module count
                 itemBuilder: (context, index) {
                   final module = homeNotifier.state.modules[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
-                    child: GestureDetector( // Wrap with GestureDetector for tap
+                    child: GestureDetector(
+                      // Wrap with GestureDetector for tap
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => CourseDetailPage(courseModuleId: module.id),
+                            builder: (context) =>
+                                CourseDetailPage(courseModuleId: module.id),
                           ),
                         );
                       },
-                      child: CourseModuleCard(courseModule: module), // Pass courseModule
+                      child: CourseModuleCard(
+                        courseModule: module,
+                      ), // Pass courseModule
                     ),
                   );
                 },

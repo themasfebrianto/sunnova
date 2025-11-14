@@ -29,19 +29,16 @@ class CourseState {
     CourseModuleEntity? selectedModule,
     List<LessonUnitEntity>? units,
     Map<String, UserLessonProgressEntity>? progressMap,
-  }) =>
-      CourseState(
-        selectedModule: selectedModule ?? this.selectedModule,
-        units: units ?? this.units,
-        progressMap: progressMap ?? this.progressMap,
-        isLoading: false,
-      );
+  }) => CourseState(
+    selectedModule: selectedModule ?? this.selectedModule,
+    units: units ?? this.units,
+    progressMap: progressMap ?? this.progressMap,
+    isLoading: false,
+  );
 
   // Error state
-  CourseState error(String message) => CourseState(
-        errorMessage: message,
-        isLoading: false,
-      );
+  CourseState error(String message) =>
+      CourseState(errorMessage: message, isLoading: false);
 }
 
 class CourseNotifier extends ChangeNotifier {
@@ -109,9 +106,21 @@ class CourseNotifier extends ChangeNotifier {
     await Future.delayed(const Duration(seconds: 1));
     _state = _state.loaded(
       progressMap: {
-        'lesson_1': UserLessonProgressEntity(userId: userId, lessonId: 'lesson_1', isCompleted: true),
-        'lesson_2': UserLessonProgressEntity(userId: userId, lessonId: 'lesson_2', isCompleted: false),
-        'lesson_3': UserLessonProgressEntity(userId: userId, lessonId: 'lesson_3', isCompleted: false),
+        'lesson_1': UserLessonProgressEntity(
+          userId: userId,
+          lessonId: 'lesson_1',
+          isCompleted: true,
+        ),
+        'lesson_2': UserLessonProgressEntity(
+          userId: userId,
+          lessonId: 'lesson_2',
+          isCompleted: false,
+        ),
+        'lesson_3': UserLessonProgressEntity(
+          userId: userId,
+          lessonId: 'lesson_3',
+          isCompleted: false,
+        ),
       },
     );
     notifyListeners();

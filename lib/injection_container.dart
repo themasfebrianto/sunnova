@@ -31,16 +31,12 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(
-      localDataSource: sl(),
-    ),
+    () => UserRepositoryImpl(localDataSource: sl()),
   );
 
   // Data sources
   sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(
-      databaseHelper: sl(),
-    ),
+    () => AuthLocalDataSourceImpl(databaseHelper: sl()),
   );
 
   //! Core

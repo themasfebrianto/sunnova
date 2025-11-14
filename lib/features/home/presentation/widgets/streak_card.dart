@@ -15,7 +15,9 @@ class StreakCard extends StatelessWidget {
       margin: EdgeInsets.zero,
       // Card theme is applied globally in main.dart
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Use spacing constants if defined globally
+        padding: const EdgeInsets.all(
+          16.0,
+        ), // Use spacing constants if defined globally
         child: Row(
           children: [
             Icon(
@@ -29,11 +31,15 @@ class StreakCard extends StatelessWidget {
               children: [
                 Text(
                   'Current Streak',
-                  style: Theme.of(context).textTheme.labelMedium, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium, // Use theme typography
                 ),
                 Text(
                   '$currentStreak Days 🔥', // Display actual current streak
-                  style: Theme.of(context).textTheme.headlineSmall, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineSmall, // Use theme typography
                 ),
               ],
             ),
@@ -43,11 +49,15 @@ class StreakCard extends StatelessWidget {
               children: [
                 Text(
                   'Longest Streak',
-                  style: Theme.of(context).textTheme.labelSmall, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall, // Use theme typography
                 ),
                 Text(
                   '$longestStreak Days', // Display actual longest streak
-                  style: Theme.of(context).textTheme.titleSmall, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall, // Use theme typography
                 ),
               ],
             ),

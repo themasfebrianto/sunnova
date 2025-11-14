@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sunnova_app/core/error/failures.dart';
 import 'package:sunnova_app/core/usecases/usecase.dart';
@@ -58,11 +57,16 @@ class AuthNotifier extends ChangeNotifier {
     _state = _state.copyWith(status: AuthStatus.loading);
     notifyListeners();
 
-    final result = await loginUser(LoginUserParams(email: email, password: password));
+    final result = await loginUser(
+      LoginUserParams(email: email, password: password),
+    );
 
     result.fold(
       (failure) {
-        _state = _state.copyWith(status: AuthStatus.error, errorMessage: _mapFailureToMessage(failure));
+        _state = _state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: _mapFailureToMessage(failure),
+        );
         notifyListeners();
       },
       (user) {
@@ -72,15 +76,30 @@ class AuthNotifier extends ChangeNotifier {
     );
   }
 
-  Future<void> register(String name, String email, String password, String gender) async {
+  Future<void> register(
+    String name,
+    String email,
+    String password,
+    String gender,
+  ) async {
     _state = _state.copyWith(status: AuthStatus.loading);
     notifyListeners();
 
-    final result = await registerUser(RegisterUserParams(name: name, email: email, password: password, gender: gender));
+    final result = await registerUser(
+      RegisterUserParams(
+        name: name,
+        email: email,
+        password: password,
+        gender: gender,
+      ),
+    );
 
     result.fold(
       (failure) {
-        _state = _state.copyWith(status: AuthStatus.error, errorMessage: _mapFailureToMessage(failure));
+        _state = _state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: _mapFailureToMessage(failure),
+        );
         notifyListeners();
       },
       (user) {
@@ -98,11 +117,17 @@ class AuthNotifier extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _state = _state.copyWith(status: AuthStatus.error, errorMessage: _mapFailureToMessage(failure));
+        _state = _state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: _mapFailureToMessage(failure),
+        );
         notifyListeners();
       },
       (_) {
-        _state = _state.copyWith(status: AuthStatus.unauthenticated, user: null);
+        _state = _state.copyWith(
+          status: AuthStatus.unauthenticated,
+          user: null,
+        );
         notifyListeners();
       },
     );
@@ -116,7 +141,10 @@ class AuthNotifier extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _state = _state.copyWith(status: AuthStatus.unauthenticated, errorMessage: _mapFailureToMessage(failure));
+        _state = _state.copyWith(
+          status: AuthStatus.unauthenticated,
+          errorMessage: _mapFailureToMessage(failure),
+        );
         notifyListeners();
       },
       (user) {

@@ -26,7 +26,9 @@ class LessonUnitCard extends StatelessWidget {
             children: [
               Icon(
                 isCompleted ? Icons.check_circle : Icons.circle_outlined,
-                color: isCompleted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                color: isCompleted
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 size: 24, // Use iconLarge from theme
               ),
               const SizedBox(width: 16), // Use space16 from theme
@@ -48,7 +50,11 @@ class LessonUnitCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey), // Use iconSmall from theme
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+              ), // Use iconSmall from theme and theme color
             ],
           ),
         ),

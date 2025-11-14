@@ -57,7 +57,8 @@ class DatabaseHelper {
 
   // Add onUpgrade to handle schema changes in future versions
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 3) { // Check for previous versions
+    if (oldVersion < 3) {
+      // Check for previous versions
       await db.execute('DROP TABLE IF EXISTS users');
       await _onCreate(db, newVersion);
     }

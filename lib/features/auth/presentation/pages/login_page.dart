@@ -33,14 +33,19 @@ class _LoginPageState extends State<LoginPage> {
       if (authNotifier.state.status == AuthStatus.authenticated) {
         // Save user ID to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('currentUserId', authNotifier.state.user!.uid); // Save the actual UID
+        await prefs.setString(
+          'currentUserId',
+          authNotifier.state.user!.uid,
+        ); // Save the actual UID
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else if (authNotifier.state.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authNotifier.state.errorMessage ?? 'Login Failed')),
+          SnackBar(
+            content: Text(authNotifier.state.errorMessage ?? 'Login Failed'),
+          ),
         );
       }
     }
@@ -49,9 +54,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
+      appBar: AppBar(title: const Text('Login')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -60,9 +63,12 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text( // Removed const
+                Text(
+                  // Removed const
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.titleLarge, // Use theme typography
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge, // Use theme typography
                 ),
                 const SizedBox(height: 40),
                 AuthTextField(
@@ -91,15 +97,20 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Password must be at least 6 characters';
                     }
                     return null;
-                    },
+                  },
                 ),
                 const SizedBox(height: 30),
                 Consumer<AuthNotifier>(
                   builder: (context, authNotifier, child) {
                     return ElevatedButton(
-                      onPressed: authNotifier.state.status == AuthStatus.loading ? null : _login,
+                      onPressed: authNotifier.state.status == AuthStatus.loading
+                          ? null
+                          : _login,
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50), // Full width button
+                        minimumSize: const Size(
+                          double.infinity,
+                          50,
+                        ), // Full width button
                       ),
                       child: authNotifier.state.status == AuthStatus.loading
                           ? const CircularProgressIndicator(color: Colors.white)
@@ -111,7 +122,9 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const RegisterPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterPage(),
+                      ),
                     );
                   },
                   child: const Text('Don\'t have an account? Register here.'),
