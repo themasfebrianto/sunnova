@@ -1,76 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart'; // Import UserAchievementEntity
-import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart'; // Import BadgeEntity
+import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart';
 
 class BadgeGrid extends StatelessWidget {
-  final List<UserAchievementEntity> achievements;
   final List<BadgeEntity> badges;
 
-  const BadgeGrid({super.key, required this.achievements, required this.badges});
+  const BadgeGrid({super.key, required this.badges});
 
   @override
   Widget build(BuildContext context) {
+    if (badges.isEmpty) {
+      return const Center(child: Text('No badges earned yet.'));
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // 4 badges per row
+        crossAxisCount: 3,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 0.8, // Adjust as needed
+        childAspectRatio: 0.8,
       ),
-      itemCount: badges.length, // Use badges length
+      itemCount: badges.length,
       itemBuilder: (context, index) {
         final badge = badges[index];
-        final userAchievement = achievements.firstWhere(
-          (ach) => ach.badgeId == badge.id,
-          orElse: () => UserAchievementEntity(
-            id: '',
-            userId: '',
-            badgeId: badge.id,
-            unlockedAt: DateTime.now().add(const Duration(days: 365)), // Future date for locked
-            isNew: false,
-          ),
-        );
-        final bool isUnlocked = userAchievement.unlockedAt.isBefore(DateTime.now());
-
-        return Column(
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: isUnlocked
-                      ? Theme.of(context).colorScheme.secondaryContainer
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Icon(
-                    Icons.star, // Placeholder icon, could be dynamic based on badge.icon
-                    size: 30,
-                    color: isUnlocked
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-                  ),
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Placeholder for badge icon
+              Icon(
+                badge.isUnlocked ? Icons.military_tech : Icons.lock,
+                size: 40,
+                color: badge.isUnlocked ? Colors.amber : Colors.grey,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                badge.name,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              if (!badge.isUnlocked)
+                Text(
+                  'Locked',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.red,
+                      ),
                 ),
-                if (!isUnlocked)
-                  Icon(
-                    Icons.lock,
-                    size: 20,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Text(
-              badge.title,
-              style: Theme.of(context).textTheme.labelSmall,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

@@ -25,12 +25,16 @@ void main() {
   });
 
   final tUserGameStats = UserGameStatsEntity(
+    userName: 'Test User',
     xp: 100,
     level: 1,
+    currentXp: 100,
+    xpToNextLevel: 200,
     currentStreak: 5,
     longestStreak: 10,
     lessonsCompleted: 2,
     quizzesPassed: 1,
+    totalXp: 100,
   );
 
   final tCourseModule = CourseModuleEntity(

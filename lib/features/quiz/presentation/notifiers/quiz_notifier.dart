@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/quiz/domain/entities/assessment_question_entity.dart'; // Import AssessmentQuestionEntity
+import 'package:sunnova_app/features/quiz/domain/entities/assessment_question_entity.dart';
+import 'package:sunnova_app/features/quiz/domain/entities/user_answer_log_entity.dart';
 import 'package:sunnova_app/features/quiz/domain/usecases/get_quiz_questions.dart';
 import 'package:sunnova_app/features/quiz/domain/usecases/submit_quiz_answers.dart';
 
-// Define QuizState
 class QuizState {
   final List<AssessmentQuestionEntity> questions;
   final int currentQuestionIndex;
@@ -25,13 +25,30 @@ class QuizState {
     this.errorMessage,
   });
 
-  // Initial state
+  QuizState copyWith({
+    List<AssessmentQuestionEntity>? questions,
+    int? currentQuestionIndex,
+    Map<int, int>? userAnswers,
+    bool? isSubmitted,
+    int? correctCount,
+    int? totalXpEarned,
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return QuizState(
+      questions: questions ?? this.questions,
+      currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
+      userAnswers: userAnswers ?? this.userAnswers,
+      isSubmitted: isSubmitted ?? this.isSubmitted,
+      correctCount: correctCount ?? this.correctCount,
+      totalXpEarned: totalXpEarned ?? this.totalXpEarned,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
   factory QuizState.initial() => QuizState();
-
-  // Loading state
   QuizState loading() => QuizState(isLoading: true);
-
-  // Loaded state
   QuizState loaded({
     List<AssessmentQuestionEntity>? questions,
     int? currentQuestionIndex,
@@ -39,19 +56,17 @@ class QuizState {
     bool? isSubmitted,
     int? correctCount,
     int? totalXpEarned,
-  }) => QuizState(
-    questions: questions ?? this.questions,
-    currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
-    userAnswers: userAnswers ?? this.userAnswers,
-    isSubmitted: isSubmitted ?? this.isSubmitted,
-    correctCount: correctCount ?? this.correctCount,
-    totalXpEarned: totalXpEarned ?? this.totalXpEarned,
-    isLoading: false,
-  );
-
-  // Error state
-  QuizState error(String message) =>
-      QuizState(errorMessage: message, isLoading: false);
+  }) =>
+      QuizState(
+        questions: questions ?? this.questions,
+        currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
+        userAnswers: userAnswers ?? this.userAnswers,
+        isSubmitted: isSubmitted ?? this.isSubmitted,
+        correctCount: correctCount ?? this.correctCount,
+        totalXpEarned: totalXpEarned ?? this.totalXpEarned,
+        isLoading: false,
+      );
+  QuizState error(String message) => QuizState(errorMessage: message, isLoading: false);
 }
 
 class QuizNotifier extends ChangeNotifier {
@@ -66,94 +81,102 @@ class QuizNotifier extends ChangeNotifier {
   QuizState _state = QuizState.initial();
   QuizState get state => _state;
 
-  // Placeholder methods
-  Future<void> loadQuizQuestions(String lessonId) async {
+  Future<void> fetchQuizQuestions(String lessonId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      questions: [
-        AssessmentQuestionEntity(
-          id: 'q1',
-          lessonId: lessonId,
-          question: 'What is the first letter of the Arabic alphabet?',
-          options: const ['Alif', 'Ba', 'Ta', 'Tha'],
-          correctAnswerIndex: 0,
-          explanation: 'Alif is the first letter.',
-          difficultyLevel: 1,
-          ordering: 1,
-        ),
-        AssessmentQuestionEntity(
-          id: 'q2',
-          lessonId: lessonId,
-          question: 'Which of these is a heavy letter?',
-          options: const ['Ta', 'Dal', 'Sad', 'Kaf'],
-          correctAnswerIndex: 2,
-          explanation: 'Sad is a heavy letter.',
-          difficultyLevel: 2,
-          ordering: 2,
-        ),
-        AssessmentQuestionEntity(
-          id: 'q3',
-          lessonId: lessonId,
-          question: 'How many harakat is a Fatha?',
-          options: const ['One', 'Two', 'Three', 'Four'],
-          correctAnswerIndex: 0,
-          explanation: 'A Fatha is one harakah.',
-          difficultyLevel: 1,
-          ordering: 3,
-        ),
-      ],
+
+    final result = await getQuizQuestions(GetQuizQuestionsParams(lessonId: lessonId));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'Failed to fetch quiz questions');
+        notifyListeners();
+      },
+      (questions) {
+        _state = _state.loaded(questions: questions);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
   void selectAnswer(int questionIndex, int optionIndex) {
+    if (_state.isSubmitted) return; // Cannot change answers after submission
     final updatedAnswers = Map<int, int>.from(_state.userAnswers);
     updatedAnswers[questionIndex] = optionIndex;
-    _state = _state.loaded(userAnswers: updatedAnswers);
+    _state = _state.copyWith(userAnswers: updatedAnswers);
     notifyListeners();
+  }
+
+  Future<void> submitQuiz(String userId, String lessonId) async {
+    _state = _state.copyWith(isLoading: true);
+    notifyListeners();
+
+    int correctCount = 0;
+    final List<UserAnswerLogEntity> userAnswerLogs = [];
+
+    for (int i = 0; i < _state.questions.length; i++) {
+      final question = _state.questions[i];
+      final selectedOptionIndex = _state.userAnswers[i];
+      final isCorrect = (selectedOptionIndex != null &&
+          selectedOptionIndex == question.correctAnswerIndex);
+
+      if (isCorrect) {
+        correctCount++;
+      }
+
+      userAnswerLogs.add(
+        UserAnswerLogEntity(
+          id: 'log_${DateTime.now().millisecondsSinceEpoch}_$i', // Unique ID for log
+          userId: userId,
+          lessonId: lessonId,
+          questionId: question.id,
+          selectedAnswerIndex: selectedOptionIndex,
+          isCorrect: isCorrect,
+          isHintUsed: false, // Assuming no hint used for now
+          attemptedAt: DateTime.now(),
+          xpEarned: isCorrect ? 10 : 0, // 10 XP per correct answer
+        ),
+      );
+    }
+
+    final totalXpEarned = correctCount * 10; // Example: 10 XP per correct answer
+
+    final result = await submitQuizAnswers(
+      SubmitQuizAnswersParams(
+        userId: userId,
+        lessonId: lessonId,
+        answers: userAnswerLogs,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'Failed to submit quiz');
+        notifyListeners();
+      },
+      (_) {
+        _state = _state.copyWith(
+          isSubmitted: true,
+          correctCount: correctCount,
+          totalXpEarned: totalXpEarned,
+          isLoading: false,
+        );
+        notifyListeners();
+      },
+    );
   }
 
   void goToNextQuestion() {
     if (_state.currentQuestionIndex < _state.questions.length - 1) {
-      _state = _state.loaded(
-        currentQuestionIndex: _state.currentQuestionIndex + 1,
-      );
+      _state = _state.copyWith(currentQuestionIndex: _state.currentQuestionIndex + 1);
       notifyListeners();
     }
   }
 
   void goToPreviousQuestion() {
     if (_state.currentQuestionIndex > 0) {
-      _state = _state.loaded(
-        currentQuestionIndex: _state.currentQuestionIndex - 1,
-      );
+      _state = _state.copyWith(currentQuestionIndex: _state.currentQuestionIndex - 1);
       notifyListeners();
     }
-  }
-
-  Future<void> performSubmitQuiz(String userId, String lessonId) async {
-    _state = _state.loading();
-    notifyListeners();
-
-    int correct = 0;
-    for (int i = 0; i < _state.questions.length; i++) {
-      if (_state.userAnswers[i] == _state.questions[i].correctAnswerIndex) {
-        correct++;
-      }
-    }
-
-    // Simulate XP calculation
-    final int xpEarned = correct * 10; // 10 XP per correct answer
-
-    _state = _state.loaded(
-      isSubmitted: true,
-      correctCount: correct,
-      totalXpEarned: xpEarned,
-    );
-    notifyListeners();
-    // In a real app, this would interact with a use case to update backend/DB
   }
 }

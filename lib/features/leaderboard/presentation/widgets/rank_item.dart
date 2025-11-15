@@ -1,67 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart'; // Import LeaderboardRankEntity
+import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart';
 
 class RankItem extends StatelessWidget {
   final LeaderboardRankEntity rank;
-  final bool isCurrentUser;
+  final int index;
 
-  const RankItem({super.key, required this.rank, this.isCurrentUser = false});
+  const RankItem({super.key, required this.rank, required this.index});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      color: isCurrentUser
-          ? Theme.of(context).colorScheme.secondaryContainer
-          : Theme.of(context).colorScheme.surface,
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
             Text(
-              '#${rank.rank}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: isCurrentUser
-                    ? Theme.of(context).colorScheme.onSecondaryContainer
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
+              '#${index + 1}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: index < 3 ? Colors.amber : Colors.grey,
+                  ),
             ),
             const SizedBox(width: 16),
             CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Icon(
-                Icons.person,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              backgroundImage: rank.userPhotoUrl != null ? NetworkImage(rank.userPhotoUrl!) : null,
+              child: rank.userPhotoUrl == null ? const Icon(Icons.person) : null,
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 rank.userName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isCurrentUser
-                      ? Theme.of(context).colorScheme.onSecondaryContainer
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            if (rank.rank <= 3)
-              Icon(
-                Icons.emoji_events,
-                color: Theme.of(
-                  context,
-                ).colorScheme.tertiary, // Use tertiary for crown
-                size: 24,
-              ),
-            const SizedBox(width: 8),
             Text(
               '${rank.scoreValue} XP',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: isCurrentUser
-                    ? Theme.of(context).colorScheme.onSecondaryContainer
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
+            if (index < 3)
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Icon(Icons.emoji_events, color: Colors.amber),
+              ),
           ],
         ),
       ),

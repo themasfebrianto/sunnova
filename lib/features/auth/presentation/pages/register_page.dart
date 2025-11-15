@@ -156,35 +156,27 @@ class _RegisterPageState extends State<RegisterPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: Row(
-                            children: [
-                              Radio<Gender>(
-                                value: Gender.male,
-                                groupValue: _selectedGender,
-                                onChanged: (Gender? value) {
-                                  setState(() {
-                                    _selectedGender = value;
-                                  });
-                                },
-                              ),
-                              const Text('Male'),
-                            ],
+                          child: RadioListTile<Gender>(
+                            title: const Text('Male'),
+                            value: Gender.male,
+                            groupValue: _selectedGender,
+                            onChanged: (Gender? value) {
+                              setState(() {
+                                _selectedGender = value;
+                              });
+                            },
                           ),
                         ),
                         Expanded(
-                          child: Row(
-                            children: [
-                              Radio<Gender>(
-                                value: Gender.female,
-                                groupValue: _selectedGender,
-                                onChanged: (Gender? value) {
-                                  setState(() {
-                                    _selectedGender = value;
-                                  });
-                                },
-                              ),
-                              const Text('Female'),
-                            ],
+                          child: RadioListTile<Gender>(
+                            title: const Text('Female'),
+                            value: Gender.female,
+                            groupValue: _selectedGender,
+                            onChanged: (Gender? value) {
+                              setState(() {
+                                _selectedGender = value;
+                              });
+                            },
                           ),
                         ),
                       ],

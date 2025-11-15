@@ -29,11 +29,13 @@ class QuizRepositoryImpl implements QuizRepository {
       final answerModels = answers.map((e) => UserAnswerLogModel(
         id: e.id,
         userId: e.userId,
+        lessonId: e.lessonId,
         questionId: e.questionId,
         selectedAnswerIndex: e.selectedAnswerIndex,
         isCorrect: e.isCorrect,
         isHintUsed: e.isHintUsed,
         attemptedAt: e.attemptedAt,
+        xpEarned: e.xpEarned,
       )).toList();
       await localDataSource.submitQuizAnswers(userId, lessonId, answerModels);
       return const Right(null);

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sunnova_app/core/error/failures.dart';
-import 'package:sunnova_app/core/usecases/usecase.dart';
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_course_detail.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_lesson_content.dart';
@@ -46,10 +45,12 @@ void main() {
 
   final tLessonUnit = LessonUnitEntity(
     id: 'lesson_1',
-    title: 'Test Lesson',
-    description: 'Test Description',
-    content: 'Test Content',
-    durationMinutes: 10,
+    title: 'Introduction to Tajwid',
+    description: 'Understand the importance of Tajwid.',
+    content: 'This is the content of the lesson. It can be **Markdown** or HTML.',
+    videoUrl: null,
+    audioUrl: null,
+    durationMinutes: 15,
   );
 
   group('loadLessonContent', () {

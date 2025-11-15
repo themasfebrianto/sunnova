@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // Import LessonUnitEntity
+import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart';
 
 class LessonUnitCard extends StatelessWidget {
-  final LessonUnitEntity lessonUnit;
+  final LessonUnitEntity lesson;
   final bool isCompleted;
   final VoidCallback onTap;
 
   const LessonUnitCard({
     super.key,
-    required this.lessonUnit,
+    required this.lesson,
     this.isCompleted = false,
     required this.onTap,
   });
@@ -16,33 +16,35 @@ class LessonUnitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.zero,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12), // Use radiusMedium from theme
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
               Icon(
                 isCompleted ? Icons.check_circle : Icons.circle_outlined,
-                color: isCompleted
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-                size: 24, // Use iconLarge from theme
+                color: isCompleted ? Colors.green : Colors.grey,
               ),
-              const SizedBox(width: 16), // Use space16 from theme
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lessonUnit.title,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      lesson.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            decoration: isCompleted
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
                     ),
-                    const SizedBox(height: 4), // Use space4 from theme
+                    const SizedBox(height: 4),
                     Text(
-                      lessonUnit.description,
+                      lesson.description,
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -50,11 +52,7 @@ class LessonUnitCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-              ), // Use iconSmall from theme and theme color
+              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             ],
           ),
         ),

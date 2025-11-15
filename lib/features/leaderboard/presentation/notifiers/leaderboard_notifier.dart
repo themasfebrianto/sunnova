@@ -1,120 +1,98 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart'; // Import LeaderboardRankEntity
+import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart';
 import 'package:sunnova_app/features/leaderboard/domain/usecases/get_leaderboard.dart';
 
-// Define LeaderboardState
+enum LeaderboardFilter { weekly, monthly }
+
 class LeaderboardState {
-  final List<LeaderboardRankEntity> weeklyRanks;
-  final List<LeaderboardRankEntity> monthlyRanks;
-  final String selectedFilter; // 'WEEKLY' or 'MONTHLY'
+  final List<LeaderboardRankEntity> ranks;
+  final LeaderboardFilter selectedFilter;
   final int? currentUserRank;
   final bool isLoading;
   final String? errorMessage;
 
   LeaderboardState({
-    this.weeklyRanks = const [],
-    this.monthlyRanks = const [],
-    this.selectedFilter = 'WEEKLY',
+    this.ranks = const [],
+    this.selectedFilter = LeaderboardFilter.weekly,
     this.currentUserRank,
     this.isLoading = false,
     this.errorMessage,
   });
 
-  // Initial state
-  factory LeaderboardState.initial() => LeaderboardState();
-
-  // Loading state
-  LeaderboardState loading() => LeaderboardState(isLoading: true);
-
-  // Loaded state
-  LeaderboardState loaded({
-    List<LeaderboardRankEntity>? weeklyRanks,
-    List<LeaderboardRankEntity>? monthlyRanks,
-    String? selectedFilter,
+  LeaderboardState copyWith({
+    List<LeaderboardRankEntity>? ranks,
+    LeaderboardFilter? selectedFilter,
     int? currentUserRank,
-  }) => LeaderboardState(
-    weeklyRanks: weeklyRanks ?? this.weeklyRanks,
-    monthlyRanks: monthlyRanks ?? this.monthlyRanks,
-    selectedFilter: selectedFilter ?? this.selectedFilter,
-    currentUserRank: currentUserRank ?? this.currentUserRank,
-    isLoading: false,
-  );
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return LeaderboardState(
+      ranks: ranks ?? this.ranks,
+      selectedFilter: selectedFilter ?? this.selectedFilter,
+      currentUserRank: currentUserRank ?? this.currentUserRank,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 
-  // Error state
-  LeaderboardState error(String message) =>
-      LeaderboardState(errorMessage: message, isLoading: false);
+  factory LeaderboardState.initial() => LeaderboardState();
+  LeaderboardState loading() => LeaderboardState(isLoading: true);
+  LeaderboardState loaded({
+    List<LeaderboardRankEntity>? ranks,
+    LeaderboardFilter? selectedFilter,
+    int? currentUserRank,
+  }) =>
+      LeaderboardState(
+        ranks: ranks ?? this.ranks,
+        selectedFilter: selectedFilter ?? this.selectedFilter,
+        currentUserRank: currentUserRank ?? this.currentUserRank,
+        isLoading: false,
+      );
+  LeaderboardState error(String message) => LeaderboardState(errorMessage: message, isLoading: false);
 }
 
 class LeaderboardNotifier extends ChangeNotifier {
   final GetLeaderboard getLeaderboard;
 
-  LeaderboardNotifier({
-    required this.getLeaderboard,
-  });
+  LeaderboardNotifier({required this.getLeaderboard});
 
   LeaderboardState _state = LeaderboardState.initial();
   LeaderboardState get state => _state;
 
-  // Placeholder methods
-  Future<void> loadLeaderboard(String rankType) async {
+  Future<void> fetchLeaderboard(LeaderboardFilter filter) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
 
-    final List<LeaderboardRankEntity> fetchedRanks = [
-      const LeaderboardRankEntity(
-        userId: 'user1',
-        userName: 'Alice',
-        scoreValue: 1500,
-        rank: 1,
-        userPhotoUrl: 'https://via.placeholder.com/50',
-        rankType: 'WEEKLY',
-      ),
-      const LeaderboardRankEntity(
-        userId: 'user2',
-        userName: 'Bob',
-        scoreValue: 1400,
-        rank: 2,
-        userPhotoUrl: 'https://via.placeholder.com/50',
-        rankType: 'WEEKLY',
-      ),
-      const LeaderboardRankEntity(
-        userId: 'user3',
-        userName: 'Charlie',
-        scoreValue: 1300,
-        rank: 3,
-        userPhotoUrl: 'https://via.placeholder.com/50',
-        rankType: 'WEEKLY',
-      ),
-      const LeaderboardRankEntity(
-        userId: 'current_user_id',
-        userName: 'You',
-        scoreValue: 1200,
-        rank: 4,
-        userPhotoUrl: 'https://via.placeholder.com/50',
-        rankType: 'WEEKLY',
-      ),
-      const LeaderboardRankEntity(
-        userId: 'user4',
-        userName: 'David',
-        scoreValue: 1100,
-        rank: 5,
-        userPhotoUrl: 'https://via.placeholder.com/50',
-        rankType: 'WEEKLY',
-      ),
-    ];
+    final result = await getLeaderboard(GetLeaderboardParams(
+      rankType: filter.toString().split('.').last, // 'weekly' or 'monthly'
+    ));
 
-    if (rankType == 'WEEKLY') {
-      _state = _state.loaded(weeklyRanks: fetchedRanks, currentUserRank: 4);
-    } else {
-      _state = _state.loaded(monthlyRanks: fetchedRanks, currentUserRank: 4);
-    }
-    notifyListeners();
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'Failed to fetch leaderboard');
+        notifyListeners();
+      },
+      (ranks) {
+        // Determine current user's rank
+        // int? currentUserRank;
+        // final userRankIndex = ranks.indexWhere((rank) => rank.userId == userId);
+        // if (userRankIndex != -1) {
+        //   currentUserRank = userRankIndex + 1;
+        // }
+
+        _state = _state.loaded(
+          ranks: ranks,
+          selectedFilter: filter,
+          // currentUserRank: currentUserRank,
+        );
+        notifyListeners();
+      },
+    );
   }
 
-  void switchFilter(String filter) {
-    _state = _state.loaded(selectedFilter: filter);
-    loadLeaderboard(filter); // Fetch data for the new filter
+  void switchFilter(LeaderboardFilter filter) {
+    if (_state.selectedFilter != filter) {
+      fetchLeaderboard(filter);
+    }
   }
 }

@@ -25,15 +25,6 @@ void main() {
     const tEmail = 'test@example.com';
     const tPassword = 'password123';
     const tGender = 'male';
-    final tUserModel = UserModel(
-      uid: 'some_uid',
-      email: tEmail,
-      displayName: tName,
-      gender: tGender,
-      isPremium: false,
-      createdAt: DateTime.now(),
-      password: tPassword,
-    );
 
     test(
       'should return UserModel when registration is successful',

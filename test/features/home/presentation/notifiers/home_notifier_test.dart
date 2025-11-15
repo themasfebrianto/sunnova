@@ -28,12 +28,16 @@ void main() {
   });
 
   final tUserGameStats = UserGameStatsEntity(
+    userName: 'Test User',
     xp: 100,
     level: 1,
+    currentXp: 100,
+    xpToNextLevel: 200,
     currentStreak: 5,
     longestStreak: 10,
     lessonsCompleted: 2,
     quizzesPassed: 1,
+    totalXp: 100,
   );
 
   final tCourseModule = CourseModuleEntity(
@@ -48,7 +52,7 @@ void main() {
   );
   final tCourseModuleList = [tCourseModule];
 
-  group('loadUserStats', () {
+  group('fetchUserStats', () {
     const tUserId = 'user_1';
 
     test(
@@ -58,7 +62,7 @@ void main() {
         when(mockGetUserGameStats(any))
             .thenAnswer((_) async => Right(tUserGameStats));
         // act
-        await homeNotifier.loadUserStats(tUserId);
+        await homeNotifier.fetchUserStats(tUserId);
         // assert
         expect(homeNotifier.state.isLoading, false);
         expect(homeNotifier.state.userStats, tUserGameStats);
@@ -75,7 +79,7 @@ void main() {
         when(mockGetUserGameStats(any))
             .thenAnswer((_) async => Left(DatabaseFailure('Error')));
         // act
-        await homeNotifier.loadUserStats(tUserId);
+        await homeNotifier.fetchUserStats(tUserId);
         // assert
         expect(homeNotifier.state.isLoading, false);
         expect(homeNotifier.state.userStats, null);
@@ -86,7 +90,7 @@ void main() {
     );
   });
 
-  group('loadCourseModules', () {
+  group('fetchCourseModules', () {
     test(
       'should set state to loading and then loaded with course modules on successful fetch',
       () async {
@@ -94,7 +98,7 @@ void main() {
         when(mockGetCourseModules(any))
             .thenAnswer((_) async => Right(tCourseModuleList));
         // act
-        await homeNotifier.loadCourseModules();
+        await homeNotifier.fetchCourseModules();
         // assert
         expect(homeNotifier.state.isLoading, false);
         expect(homeNotifier.state.modules, tCourseModuleList);
@@ -111,7 +115,7 @@ void main() {
         when(mockGetCourseModules(any))
             .thenAnswer((_) async => Left(DatabaseFailure('Error')));
         // act
-        await homeNotifier.loadCourseModules();
+        await homeNotifier.fetchCourseModules();
         // assert
         expect(homeNotifier.state.isLoading, false);
         expect(homeNotifier.state.modules, []);

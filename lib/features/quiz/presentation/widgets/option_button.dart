@@ -14,40 +14,29 @@ class OptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surface,
-        foregroundColor: isSelected
-            ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onSurface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            12,
-          ), // Use radiusMedium from theme
-          side: BorderSide(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline,
-            width: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelected ? Colors.blueAccent : Colors.grey[200],
+          foregroundColor: isSelected ? Colors.white : Colors.black87,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: isSelected ? Colors.blueAccent : Colors.grey,
+              width: 1.5,
+            ),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          minimumSize: const Size(double.infinity, 50),
         ),
-        padding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 16,
-        ), // Use spacing constants
-      ),
-      child: Align(
-        alignment: Alignment.centerLeft,
         child: Text(
           optionText,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: isSelected
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurface,
-          ),
+                color: isSelected ? Colors.white : Colors.black87,
+              ),
         ),
       ),
     );

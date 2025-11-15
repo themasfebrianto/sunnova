@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sunnova_app/features/course/presentation/notifiers/lesson_notifier.dart'; // Import LessonNotifier
-import 'package:sunnova_app/features/quiz/presentation/pages/quiz_page.dart'; // Import QuizPage
+import 'package:sunnova_app/features/course/presentation/notifiers/lesson_notifier.dart';
+import 'package:sunnova_app/features/quiz/presentation/pages/quiz_page.dart';
 
 class LessonContentPage extends StatefulWidget {
   final String lessonId;
+  final String moduleId;
 
-  const LessonContentPage({super.key, required this.lessonId});
+  const LessonContentPage({
+    super.key,
+    required this.lessonId,
+    required this.moduleId,
+  });
 
   @override
   State<LessonContentPage> createState() => _LessonContentPageState();
@@ -16,42 +21,25 @@ class _LessonContentPageState extends State<LessonContentPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final lessonNotifier = Provider.of<LessonNotifier>(
-        context,
-        listen: false,
-      );
-      lessonNotifier.loadLessonContent(widget.lessonId);
-    });
+    Provider.of<LessonNotifier>(context, listen: false)
+        .loadLessonContent(widget.lessonId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Lesson Content', // Placeholder title
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        // Placeholder for progress indicator (Lesson X/Y)
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: LinearProgressIndicator(
-            value: 0.5, // Placeholder progress
-            color: Theme.of(context).colorScheme.secondary,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-          ),
-        ),
+        title: const Text('Lesson Content'),
       ),
       body: Consumer<LessonNotifier>(
         builder: (context, lessonNotifier, child) {
           if (lessonNotifier.state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (lessonNotifier.state.errorMessage != null) {
             return Center(
-              child: Text('Error: ${lessonNotifier.state.errorMessage}'),
-            );
+                child: Text('Error: ${lessonNotifier.state.errorMessage}'));
           }
 
           final lesson = lessonNotifier.state.currentLesson;
@@ -66,61 +54,73 @@ class _LessonContentPageState extends State<LessonContentPage> {
               children: [
                 Text(
                   lesson.title,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 Text(
                   lesson.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                // Placeholder for content viewer (e.g., Markdown or HTML renderer)
-                // TODO: Implement a proper Markdown/HTML renderer here
-                Text(
-                  lesson.content,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                // Add audio/video player if URLs exist
+                const SizedBox(height: 20),
+                Text(
+                  lesson.content,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                // Add audio/video player if URLs are available
                 if (lesson.videoUrl != null) ...[
-                  const SizedBox(height: 24),
-                  Text('Video Player Placeholder: ${lesson.videoUrl}'),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Video Content:',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  // Placeholder for video player
+                  Container(
+                    height: 200,
+                    color: Colors.black,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Video Player Placeholder',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ],
                 if (lesson.audioUrl != null) ...[
-                  const SizedBox(height: 24),
-                  Text('Audio Player Placeholder: ${lesson.audioUrl}'),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Audio Content:',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  // Placeholder for audio player
+                  Container(
+                    height: 50,
+                    color: Colors.grey[300],
+                    alignment: Alignment.center,
+                    child: const Text('Audio Player Placeholder'),
+                  ),
                 ],
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Mark lesson as completed
-                    lessonNotifier.completeLesson(
-                      'current_user_id',
-                      lesson.id,
-                    );
-                    // Navigate to QuizPage
+                    await lessonNotifier.completeLesson(
+                        'current_user_id', widget.lessonId);
+                    if (!mounted) return;
+                    // Navigate to quiz page
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => QuizPage(lessonId: lesson.id),
+                        builder: (_) => QuizPage(
+                          lessonId: widget.lessonId,
+                          moduleId: widget.moduleId,
+                        ),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(
-                      double.infinity,
-                      50,
-                    ), // Full width button
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ), // Use radiusMedium from theme
-                    ),
+                    minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: Text(
-                    'Selesai & Lanjut Quiz',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
-                  ),
+                  child: const Text('Selesai & Lanjut Quiz'),
                 ),
               ],
             ),

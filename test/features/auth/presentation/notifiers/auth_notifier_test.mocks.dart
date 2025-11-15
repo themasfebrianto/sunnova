@@ -8,17 +8,12 @@ import 'dart:async' as _i5;
 import 'package:dartz/dartz.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:sunnova_app/core/error/failures.dart' as _i6;
-import 'package:sunnova_app/core/usecases/usecase.dart' as _i10;
 import 'package:sunnova_app/features/auth/domain/entities/user_entity.dart'
     as _i7;
 import 'package:sunnova_app/features/auth/domain/repositories/user_repository.dart'
     as _i2;
-import 'package:sunnova_app/features/auth/domain/usecases/get_user_profile.dart'
-    as _i11;
 import 'package:sunnova_app/features/auth/domain/usecases/login_user.dart'
     as _i8;
-import 'package:sunnova_app/features/auth/domain/usecases/logout_user.dart'
-    as _i9;
 import 'package:sunnova_app/features/auth/domain/usecases/register_user.dart'
     as _i4;
 
@@ -106,75 +101,6 @@ class MockLoginUser extends _i1.Mock implements _i8.LoginUser {
   @override
   _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>> call(
     _i8.LoginUserParams? params,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#call, [params]),
-            returnValue:
-                _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>>.value(
-                  _FakeEither_1<_i6.Failure, _i7.UserEntity>(
-                    this,
-                    Invocation.method(#call, [params]),
-                  ),
-                ),
-          )
-          as _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>>);
-}
-
-/// A class which mocks [LogoutUser].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockLogoutUser extends _i1.Mock implements _i9.LogoutUser {
-  MockLogoutUser() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i2.UserRepository get repository =>
-      (super.noSuchMethod(
-            Invocation.getter(#repository),
-            returnValue: _FakeUserRepository_0(
-              this,
-              Invocation.getter(#repository),
-            ),
-          )
-          as _i2.UserRepository);
-
-  @override
-  _i5.Future<_i3.Either<_i6.Failure, void>> call(_i10.NoParams? params) =>
-      (super.noSuchMethod(
-            Invocation.method(#call, [params]),
-            returnValue: _i5.Future<_i3.Either<_i6.Failure, void>>.value(
-              _FakeEither_1<_i6.Failure, void>(
-                this,
-                Invocation.method(#call, [params]),
-              ),
-            ),
-          )
-          as _i5.Future<_i3.Either<_i6.Failure, void>>);
-}
-
-/// A class which mocks [GetUserProfile].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockGetUserProfile extends _i1.Mock implements _i11.GetUserProfile {
-  MockGetUserProfile() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i2.UserRepository get repository =>
-      (super.noSuchMethod(
-            Invocation.getter(#repository),
-            returnValue: _FakeUserRepository_0(
-              this,
-              Invocation.getter(#repository),
-            ),
-          )
-          as _i2.UserRepository);
-
-  @override
-  _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>> call(
-    _i11.GetUserProfileParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),

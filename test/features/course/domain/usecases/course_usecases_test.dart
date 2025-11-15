@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sunnova_app/core/error/failures.dart';
-import 'package:sunnova_app/core/usecases/usecase.dart';
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart';
 import 'package:sunnova_app/features/course/domain/entities/user_lesson_progress_entity.dart';
 import 'package:sunnova_app/features/course/domain/repositories/course_repository.dart';

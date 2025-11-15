@@ -61,28 +61,40 @@ class LessonNotifier extends ChangeNotifier {
   Future<void> loadLessonContent(String lessonId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      currentLesson: LessonUnitEntity(
-        id: lessonId,
-        title: 'Introduction to Tajwid',
-        description: 'Understand the importance of Tajwid.',
-        content:
-            'This is the content of the lesson. It can be **Markdown** or HTML.',
-        durationMinutes: 15,
-        videoUrl: null, // 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        audioUrl: null,
-      ),
+
+    final result = await getLessonContent(GetLessonContentParams(lessonId: lessonId));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'Failed to fetch lesson content');
+        notifyListeners();
+      },
+      (lesson) {
+        _state = _state.loaded(currentLesson: lesson);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
   Future<void> completeLesson(String userId, String lessonId) async {
-    // Simulate marking lesson as completed
-    _state = _state.loaded(isCompleted: true);
+    _state = _state.loading();
     notifyListeners();
-    // In a real app, this would interact with a use case to update backend/DB
+
+    final result = await markLessonAsCompleted(MarkLessonAsCompletedParams(
+      userId: userId,
+      lessonId: lessonId,
+    ));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'Failed to mark lesson as completed');
+        notifyListeners();
+      },
+      (_) {
+        _state = _state.loaded(isCompleted: true);
+        notifyListeners();
+      },
+    );
   }
 
   Future<void> goToNextLesson() async {

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart';
-import 'package:sunnova_app/features/leaderboard/presentation/notifiers/leaderboard_notifier.dart'; // Import LeaderboardNotifier
-import 'package:sunnova_app/features/leaderboard/presentation/widgets/rank_item.dart'; // Import RankItem
-import 'package:sunnova_app/features/leaderboard/presentation/widgets/leaderboard_filter.dart'; // Import LeaderboardFilter
+import 'package:sunnova_app/features/leaderboard/presentation/notifiers/leaderboard_notifier.dart';
+import 'package:sunnova_app/features/leaderboard/presentation/widgets/leaderboard_filter.dart';
+import 'package:sunnova_app/features/leaderboard/presentation/widgets/rank_item.dart';
 
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({super.key});
@@ -16,136 +15,77 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final leaderboardNotifier = Provider.of<LeaderboardNotifier>(
-        context,
-        listen: false,
-      );
-      leaderboardNotifier.loadLeaderboard('WEEKLY'); // Fetch initial data
-    });
+    // Assuming a user is logged in and we have their ID
+    // Replace 'current_user_id' with actual user ID from AuthNotifier or similar
+    Provider.of<LeaderboardNotifier>(context, listen: false)
+        .fetchLeaderboard(LeaderboardFilter.weekly);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Leaderboard',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        title: const Text('Leaderboard'),
       ),
       body: Consumer<LeaderboardNotifier>(
         builder: (context, leaderboardNotifier, child) {
           if (leaderboardNotifier.state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (leaderboardNotifier.state.errorMessage != null) {
             return Center(
-              child: Text('Error: ${leaderboardNotifier.state.errorMessage}'),
-            );
-          }
-
-          final ranks = leaderboardNotifier.state.selectedFilter == 'WEEKLY'
-              ? leaderboardNotifier.state.weeklyRanks
-              : leaderboardNotifier.state.monthlyRanks;
-
-          // Find current user's rank to display in the highlighted card
-          LeaderboardRankEntity currentUserRankItem;
-          try {
-            currentUserRankItem = ranks.firstWhere(
-              (rank) => rank.userId == 'current_user_id',
-            );
-          } catch (e) {
-            currentUserRankItem = LeaderboardRankEntity(
-              userId: 'current_user_id',
-              userName: 'You',
-              scoreValue: 0,
-              rank: leaderboardNotifier.state.currentUserRank ?? 0,
-              userPhotoUrl: 'https://via.placeholder.com/50',
-              rankType: leaderboardNotifier.state.selectedFilter,
-            );
+                child: Text('Error: ${leaderboardNotifier.state.errorMessage}'));
           }
 
           return Column(
             children: [
-              LeaderboardFilter(
+              LeaderboardFilterWidget(
                 selectedFilter: leaderboardNotifier.state.selectedFilter,
                 onFilterSelected: (filter) {
                   leaderboardNotifier.switchFilter(filter);
                 },
               ),
-              const SizedBox(height: 16),
-              // Current user rank card (highlighted)
+              const SizedBox(height: 10),
               if (leaderboardNotifier.state.currentUserRank != null)
                 Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  color: Colors.blue.shade100,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Row(
                       children: [
                         Text(
-                          '#${currentUserRankItem.rank}',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
+                          '#${leaderboardNotifier.state.currentUserRank}',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade800,
                               ),
-                        ),
-                        const SizedBox(width: 16),
-                        CircleAvatar(
-                          backgroundImage: currentUserRankItem.userPhotoUrl != null
-                              ? NetworkImage(currentUserRankItem.userPhotoUrl!)
-                              : const AssetImage('assets/images/default_avatar.png') as ImageProvider, // Provide a default asset image
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                          child: currentUserRankItem.userPhotoUrl == null
-                              ? const Icon(
-                                  Icons.person,
-                                  color: Colors.white,
-                                )
-                              : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Text(
-                            currentUserRankItem.userName,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimaryContainer,
+                            'You', // Replace with actual user name
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
                                 ),
                           ),
                         ),
                         Text(
-                          '${currentUserRankItem.scoreValue} XP',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                              ),
+                          '${leaderboardNotifier.state.ranks.firstWhere((rank) => rank.userId == 'current_user_id', orElse: () => leaderboardNotifier.state.ranks.first).scoreValue} XP', // This is a placeholder, needs actual user score
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
                     ),
                   ),
                 ),
-              const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: ranks.length,
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: leaderboardNotifier.state.ranks.length,
                   itemBuilder: (context, index) {
-                    final rankItem = ranks[index];
-                    return RankItem(
-                      rank: rankItem,
-                      isCurrentUser: rankItem.userId == 'current_user_id',
-                    );
+                    final rank = leaderboardNotifier.state.ranks[index];
+                    return RankItem(rank: rank, index: index);
                   },
                 ),
               ),

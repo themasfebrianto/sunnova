@@ -40,31 +40,34 @@ Future<void> seedDatabase(DatabaseHelper databaseHelper) async {
   // Seed Badges
   final badge1 = BadgeModel(
     id: 'badge_1',
-    title: 'First Login',
+    name: 'First Login',
     description: 'Unlocked on first login',
     icon: 'login_icon',
     targetValue: 1,
     gemReward: 10,
+    isUnlocked: false,
   );
   await databaseHelper.insertBadge(badge1.toMap());
 
   final badge2 = BadgeModel(
     id: 'badge_2',
-    title: '5-Day Streak',
+    name: '5-Day Streak',
     description: 'Achieve a 5-day login streak',
     icon: 'streak_icon',
     targetValue: 5,
     gemReward: 20,
+    isUnlocked: false,
   );
   await databaseHelper.insertBadge(badge2.toMap());
 
   final badge3 = BadgeModel(
     id: 'badge_3',
-    title: 'Quiz Master',
+    name: 'Quiz Master',
     description: 'Complete 10 quizzes',
     icon: 'quiz_icon',
     targetValue: 10,
     gemReward: 30,
+    isUnlocked: false,
   );
   await databaseHelper.insertBadge(badge3.toMap());
 
@@ -145,7 +148,10 @@ Future<void> seedDatabase(DatabaseHelper databaseHelper) async {
   final user1Ach1 = UserAchievementModel(
     id: 'u1_ach_1',
     userId: 'user_1',
-    badgeId: 'badge_1',
+    badgeId: badge1.id,
+    title: badge1.name,
+    description: badge1.description,
+    isUnlocked: true,
     unlockedAt: DateTime.now().subtract(const Duration(days: 29)),
     isNew: false,
   );
@@ -154,7 +160,10 @@ Future<void> seedDatabase(DatabaseHelper databaseHelper) async {
   final user1Ach2 = UserAchievementModel(
     id: 'u1_ach_2',
     userId: 'user_1',
-    badgeId: 'badge_2',
+    badgeId: badge2.id,
+    title: badge2.name,
+    description: badge2.description,
+    isUnlocked: true,
     unlockedAt: DateTime.now().subtract(const Duration(days: 10)),
     isNew: false,
   );
@@ -162,23 +171,31 @@ Future<void> seedDatabase(DatabaseHelper databaseHelper) async {
 
   // Seed User Game Stats for user_1
   final user1Stats = UserGameStatsModel(
+    userName: user1.displayName ?? 'User 1',
     xp: 1200,
     level: 5,
+    currentXp: 1200,
+    xpToNextLevel: 1500, // Example value
     currentStreak: 7,
     longestStreak: 15,
     lessonsCompleted: 10,
     quizzesPassed: 5,
+    totalXp: 1200,
   );
   await databaseHelper.insertUserGameStats(user1Stats.toMap());
 
   // Seed User Game Stats for user_2
   final user2Stats = UserGameStatsModel(
+    userName: user2.displayName ?? 'User 2',
     xp: 2500,
     level: 8,
+    currentXp: 2500,
+    xpToNextLevel: 3000, // Example value
     currentStreak: 3,
     longestStreak: 25,
     lessonsCompleted: 20,
     quizzesPassed: 12,
+    totalXp: 2500,
   );
   await databaseHelper.insertUserGameStats(user2Stats.toMap());
 }

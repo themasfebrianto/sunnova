@@ -5,7 +5,10 @@ class UserAchievementModel extends UserAchievementEntity {
     required super.id,
     required super.userId,
     required super.badgeId,
-    required super.unlockedAt,
+    required super.title,
+    required super.description,
+    required super.isUnlocked,
+    super.unlockedAt,
     required super.isNew,
   });
 
@@ -14,7 +17,10 @@ class UserAchievementModel extends UserAchievementEntity {
       id: json['id'] as String,
       userId: json['userId'] as String,
       badgeId: json['badgeId'] as String,
-      unlockedAt: DateTime.parse(json['unlockedAt'] as String),
+      title: json['title'] as String,
+      description: json['description'] as String,
+      isUnlocked: json['isUnlocked'] as bool,
+      unlockedAt: json['unlockedAt'] != null ? DateTime.parse(json['unlockedAt'] as String) : null,
       isNew: json['isNew'] as bool,
     );
   }
@@ -24,7 +30,10 @@ class UserAchievementModel extends UserAchievementEntity {
       'id': id,
       'userId': userId,
       'badgeId': badgeId,
-      'unlockedAt': unlockedAt.toIso8601String(),
+      'title': title,
+      'description': description,
+      'isUnlocked': isUnlocked,
+      'unlockedAt': unlockedAt?.toIso8601String(),
       'isNew': isNew,
     };
   }
@@ -34,7 +43,10 @@ class UserAchievementModel extends UserAchievementEntity {
       id: map['id'] as String,
       userId: map['userId'] as String,
       badgeId: map['badgeId'] as String,
-      unlockedAt: DateTime.parse(map['unlockedAt'] as String),
+      title: map['title'] as String,
+      description: map['description'] as String,
+      isUnlocked: (map['isUnlocked'] as int) == 1,
+      unlockedAt: map['unlockedAt'] != null ? DateTime.parse(map['unlockedAt'] as String) : null,
       isNew: (map['isNew'] as int) == 1,
     );
   }
@@ -44,7 +56,10 @@ class UserAchievementModel extends UserAchievementEntity {
       'id': id,
       'userId': userId,
       'badgeId': badgeId,
-      'unlockedAt': unlockedAt.toIso8601String(),
+      'title': title,
+      'description': description,
+      'isUnlocked': isUnlocked ? 1 : 0,
+      'unlockedAt': unlockedAt?.toIso8601String(),
       'isNew': isNew ? 1 : 0,
     };
   }

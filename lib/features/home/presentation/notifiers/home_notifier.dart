@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sunnova_app/core/usecases/usecase.dart';
 import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart';
 import 'package:sunnova_app/features/home/domain/entities/user_game_stats_entity.dart';
-import 'package:sunnova_app/features/home/domain/usecases/get_user_game_stats.dart';
 import 'package:sunnova_app/features/home/domain/usecases/get_course_modules.dart';
-import 'package:sunnova_app/core/usecases/usecase.dart'; // Import NoParams
+import 'package:sunnova_app/features/home/domain/usecases/get_user_game_stats.dart';
 
-// Define HomeState
 class HomeState {
   final UserGameStatsEntity? userStats;
   final List<CourseModuleEntity> modules;
@@ -19,25 +18,25 @@ class HomeState {
     this.errorMessage,
   });
 
-  // Initial state
-  factory HomeState.initial() => HomeState();
-
-  // Loading state
-  HomeState loading() => HomeState(isLoading: true);
-
-  // Loaded state
-  HomeState loaded({
+  HomeState copyWith({
     UserGameStatsEntity? userStats,
     List<CourseModuleEntity>? modules,
-  }) => HomeState(
-    userStats: userStats ?? this.userStats,
-    modules: modules ?? this.modules,
-    isLoading: false,
-  );
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return HomeState(
+      userStats: userStats ?? this.userStats,
+      modules: modules ?? this.modules,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 
-  // Error state
-  HomeState error(String message) =>
-      HomeState(errorMessage: message, isLoading: false);
+  factory HomeState.initial() => HomeState();
+  HomeState loading() => HomeState(isLoading: true);
+  HomeState loaded({UserGameStatsEntity? userStats, List<CourseModuleEntity>? modules}) =>
+      HomeState(userStats: userStats, modules: modules ?? const [], isLoading: false);
+  HomeState error(String message) => HomeState(errorMessage: message, isLoading: false);
 }
 
 class HomeNotifier extends ChangeNotifier {
@@ -52,8 +51,7 @@ class HomeNotifier extends ChangeNotifier {
   HomeState _state = HomeState.initial();
   HomeState get state => _state;
 
-  // Placeholder methods
-  Future<void> loadUserStats(String userId) async {
+  Future<void> fetchUserStats(String userId) async {
     _state = _state.loading();
     notifyListeners();
 
@@ -61,17 +59,17 @@ class HomeNotifier extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        _state = _state.error(failure.message ?? 'Failed to fetch user stats');
         notifyListeners();
       },
       (stats) {
-        _state = _state.loaded(userStats: stats);
+        _state = _state.loaded(userStats: stats, modules: _state.modules);
         notifyListeners();
       },
     );
   }
 
-  Future<void> loadCourseModules() async {
+  Future<void> fetchCourseModules() async {
     _state = _state.loading();
     notifyListeners();
 
@@ -79,17 +77,24 @@ class HomeNotifier extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        _state = _state.error(failure.message ?? 'Failed to fetch course modules');
         notifyListeners();
       },
       (modules) {
-        _state = _state.loaded(modules: modules);
+        _state = _state.loaded(modules: modules, userStats: _state.userStats);
         notifyListeners();
       },
     );
   }
 
   Future<void> checkDailyLogin() async {
-    // Implement daily login check logic
+    // This method would typically interact with a use case to update streak
+    // and potentially award XP for daily login.
+    // For now, it's a placeholder.
+    // _state = _state.copyWith(isLoading: true);
+    // notifyListeners();
+    // await Future.delayed(const Duration(seconds: 1));
+    // _state = _state.copyWith(isLoading: false);
+    // notifyListeners();
   }
 }

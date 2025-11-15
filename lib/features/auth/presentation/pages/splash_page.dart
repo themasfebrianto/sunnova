@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // For temporary login
 import 'package:sunnova_app/features/auth/presentation/notifiers/auth_notifier.dart';
-import 'package:sunnova_app/features/home/presentation/pages/home_page.dart';
 import 'package:sunnova_app/features/auth/presentation/pages/login_page.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import GoogleFonts
+import 'package:sunnova_app/features/home/presentation/pages/home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -17,67 +15,53 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
+    _checkLoginStatus();
   }
 
-  Future<void> _checkAuthStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('currentUserId');
+  Future<void> _checkLoginStatus() async {
+    // Simulate a delay for splash screen
+    await Future.delayed(const Duration(seconds: 2));
 
-    Future.delayed(const Duration(seconds: 2), () async {
-      // Made async to await authNotifier call
-      if (!mounted) return;
+    // In a real app, you would check SharedPreferences or a secure storage
+    // to see if a user token exists or if the user is already logged in.
+    // For now, we'll simulate a logged-out state.
+    final authNotifier = Provider.of<AuthNotifier>(context, listen: false);
+    // Assuming authNotifier has a method to check initial login status
+    // await authNotifier.checkInitialLogin();
 
-      final authNotifier = Provider.of<AuthNotifier>(context, listen: false);
+    if (!mounted) return;
 
-      if (userId != null && userId.isNotEmpty) {
-        await authNotifier.checkUserProfile(userId); // Call the actual use case
-
-        if (!mounted) return; // Check again after await
-        if (authNotifier.state.status == AuthStatus.authenticated) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        } else {
-          // If checkUserProfile fails (e.g., user not found in DB), go to login
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        }
-      } else {
-        if (!mounted) return; // Check again after await
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
-      }
-    });
+    if (authNotifier.state.status == AuthStatus.authenticated) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Removed const
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Placeholder for Sunnova Logo - Replace with actual image asset later
-            Icon(
-              Icons.brightness_5, // Placeholder icon
-              size: 100,
-              color: Theme.of(context).primaryColor,
+            // Replace with your Sunnova logo
+            Image.asset(
+              'assets/images/sunnova_logo.png', // Make sure you have a logo in assets/images
+              width: 150,
+              height: 150,
             ),
-            SizedBox(height: 20),
-            Text(
-              'Sunnova App',
-              style: GoogleFonts.poppins(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             const CircularProgressIndicator(),
+            const SizedBox(height: 10),
+            Text(
+              'Loading Sunnova App...',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ],
         ),
       ),

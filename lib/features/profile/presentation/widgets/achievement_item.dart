@@ -1,34 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
-import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart'; // Import UserAchievementEntity
-import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart'; // Import BadgeEntity
+import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart';
+import 'package:intl/intl.dart';
 
 class AchievementItem extends StatelessWidget {
   final UserAchievementEntity achievement;
-  final BadgeEntity badge;
 
-  const AchievementItem({super.key, required this.achievement, required this.badge});
+  const AchievementItem({super.key, required this.achievement});
 
   @override
   Widget build(BuildContext context) {
-    final bool isUnlocked = achievement.unlockedAt.isBefore(DateTime.now());
-
     return Card(
-      margin: EdgeInsets.zero,
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: isUnlocked
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Icon(
-                Icons.emoji_events, // Placeholder icon, could be dynamic
-                color: isUnlocked
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-              ),
+            Icon(
+              achievement.isUnlocked ? Icons.star : Icons.star_border,
+              color: achievement.isUnlocked ? Colors.amber : Colors.grey,
+              size: 30,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -36,28 +28,26 @@ class AchievementItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    badge.title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    achievement.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
-                    badge.description,
+                    achievement.description,
                     style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (achievement.isUnlocked && achievement.unlockedAt != null)
+                    Text(
+                      'Unlocked: ${DateFormat.yMMMd().format(achievement.unlockedAt!)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
                 ],
               ),
             ),
-            if (isUnlocked)
-              Text(
-                DateFormat('MMM d, yyyy').format(achievement.unlockedAt),
-                style: Theme.of(context).textTheme.labelSmall,
-              )
-            else
-              Icon(
-                Icons.lock,
-                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-              ),
           ],
         ),
       ),

@@ -3,7 +3,7 @@ import 'package:sunnova_app/core/error/failures.dart';
 import 'package:sunnova_app/features/course/domain/entities/user_lesson_progress_entity.dart';
 import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart'; // For CourseModuleEntity
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // For LessonUnitEntity
-import 'package:sunnova_app/features/course/domain/entities/user_lesson_progress_entity.dart'; // For UserLessonProgressEntity
+// For UserLessonProgressEntity
 
 abstract class CourseRepository {
   Future<Either<Failure, CourseModuleEntity>> getCourseDetail(String moduleId);

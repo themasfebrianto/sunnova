@@ -51,10 +51,8 @@ Future<void> init() async {
   // Presentation
   sl.registerFactory(
     () => AuthNotifier(
-      loginUser: sl(),
-      registerUser: sl(),
-      logoutUser: sl(),
-      getUserProfile: sl<auth_usecase.GetUserProfile>(),
+      loginUserUseCase: sl(),
+      registerUserUseCase: sl(),
     ),
   );
 
@@ -156,8 +154,7 @@ Future<void> init() async {
       fetchUserProfile: sl<profile_usecase.GetUserProfile>(),
       fetchUserStats: sl(),
       fetchUserAchievements: sl(),
-      fetchBadges: sl(),
-      logout: sl<LogoutUser>(),
+      logoutUser: sl<LogoutUser>(),
     ),
   );
 
