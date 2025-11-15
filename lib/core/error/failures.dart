@@ -26,3 +26,7 @@ class DatabaseFailure extends Failure {
 class NetworkFailure extends Failure {
   const NetworkFailure([super.message]);
 }
+
+class AuthenticationFailure extends Failure {
+  const AuthenticationFailure([super.message]);
+}

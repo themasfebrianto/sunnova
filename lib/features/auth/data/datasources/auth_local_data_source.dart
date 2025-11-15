@@ -1,87 +1,93 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sunnova_app/core/db/database_helper.dart';
 import 'package:sunnova_app/core/error/exceptions.dart';
 import 'package:sunnova_app/features/auth/data/models/user_model.dart';
-import 'package:sunnova_app/core/db/database_helper.dart'; // Import DatabaseHelper
 
 abstract class AuthLocalDataSource {
-  Future<UserModel> registerUser(
-      String name, String email, String password, String gender);
   Future<UserModel> loginUser(String email, String password);
+  Future<UserModel> registerUser(String email, String password, String displayName, String gender);
+  Future<UserModel> getCurrentUser();
   Future<void> logoutUser();
-  Future<UserModel> getUserProfile(String uid);
-  Future<void> saveUser(UserModel user);
+  Future<void> cacheUser(UserModel user);
+  Future<UserModel?> getCachedUser();
+  Future<void> clearCachedUser();
 }
+
+const CACHED_USER = 'CACHED_USER';
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final DatabaseHelper databaseHelper;
+  final SharedPreferences sharedPreferences;
 
-  AuthLocalDataSourceImpl({required this.databaseHelper});
-
-  @override
-  Future<UserModel> registerUser(
-      String name, String email, String password, String gender) async {
-    try {
-      // Simulate database operation
-      final newUser = UserModel(
-        uid: 'user_${DateTime.now().millisecondsSinceEpoch}',
-        email: email,
-        displayName: name,
-        photoURL: null,
-        gender: gender,
-        fcmToken: null,
-        isPremium: false,
-        createdAt: DateTime.now(),
-        lastLoginAt: DateTime.now(),
-        password: password, // Store password for local authentication
-      );
-      await databaseHelper.insertUser(newUser.toMap());
-      return newUser;
-    } catch (e) {
-      throw DatabaseException(e.toString());
-    }
-  }
+  AuthLocalDataSourceImpl({required this.databaseHelper, required this.sharedPreferences});
 
   @override
   Future<UserModel> loginUser(String email, String password) async {
-    try {
-      final userMap = await databaseHelper.getUserByEmail(email);
-      if (userMap != null) {
-        final user = UserModel.fromMap(userMap);
-        if (user.password == password) {
-          return user;
-        }
+    final userMap = await databaseHelper.getUserByEmail(email);
+    if (userMap != null) {
+      final user = UserModel.fromMap(userMap);
+      if (user.password == password) {
+        await cacheUser(user);
+        return user;
       }
-      throw DatabaseException('Invalid credentials');
-    } catch (e) {
-      throw DatabaseException(e.toString());
     }
+    throw AuthenticationException('Invalid credentials');
+  }
+
+  @override
+  Future<UserModel> registerUser(String email, String password, String displayName, String gender) async {
+    final existingUser = await databaseHelper.getUserByEmail(email);
+    if (existingUser != null) {
+      throw AuthenticationException('Email already registered');
+    }
+
+    final newUser = UserModel(
+      uid: DateTime.now().millisecondsSinceEpoch.toString(), // Simple unique ID
+      email: email,
+      displayName: displayName,
+      gender: gender,
+      isPremium: false,
+      createdAt: DateTime.now(),
+      password: password,
+    );
+    await databaseHelper.insertUser(newUser.toMap());
+    await cacheUser(newUser);
+    return newUser;
+  }
+
+  @override
+  Future<UserModel> getCurrentUser() async {
+    final cachedUser = await getCachedUser();
+    if (cachedUser != null) {
+      return cachedUser;
+    }
+    throw CacheException('No cached user found');
   }
 
   @override
   Future<void> logoutUser() async {
-    // Simulate clearing session/token locally
-    // In a real app, this might involve clearing SharedPreferences or a local token
-    return Future.value();
+    await clearCachedUser();
   }
 
   @override
-  Future<UserModel> getUserProfile(String uid) async {
-    try {
+  Future<void> cacheUser(UserModel user) async {
+    await sharedPreferences.setString(CACHED_USER, user.uid);
+  }
+
+  @override
+  Future<UserModel?> getCachedUser() async {
+    final uid = sharedPreferences.getString(CACHED_USER);
+    if (uid != null) {
       final userMap = await databaseHelper.getUser(uid);
       if (userMap != null) {
         return UserModel.fromMap(userMap);
       }
-      throw DatabaseException('User not found');
-    } catch (e) {
-      throw DatabaseException(e.toString());
     }
+    return null;
   }
 
   @override
-  Future<void> saveUser(UserModel user) async {
-    try {
-      await databaseHelper.insertUser(user.toMap());
-    } catch (e) {
-      throw DatabaseException(e.toString());
-    }
+  Future<void> clearCachedUser() async {
+    await sharedPreferences.remove(CACHED_USER);
   }
 }

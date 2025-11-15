@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class BadgeEntity extends Equatable {
   final String id;
-  final String name;
+  final String title;
   final String description;
   final String icon;
   final int targetValue;
@@ -11,7 +11,7 @@ class BadgeEntity extends Equatable {
 
   const BadgeEntity({
     required this.id,
-    required this.name,
+    required this.title,
     required this.description,
     required this.icon,
     required this.targetValue,
@@ -20,5 +20,5 @@ class BadgeEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, name, description, icon, targetValue, gemReward, isUnlocked];
+  List<Object?> get props => [id, title, description, icon, targetValue, gemReward, isUnlocked];
 }

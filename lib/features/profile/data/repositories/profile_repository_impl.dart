@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:sunnova_app/core/error/exceptions.dart';
 import 'package:sunnova_app/core/error/failures.dart';
-import 'package:sunnova_app/features/auth/domain/entities/user_entity.dart'; // For UserEntity
+import 'package:sunnova_app/features/auth/domain/entities/user_profile_entity.dart'; // For UserProfileEntity
 import 'package:sunnova_app/features/profile/data/datasources/profile_local_data_source.dart';
 import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart';
 import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart';
@@ -13,7 +13,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl({required this.localDataSource});
 
   @override
-  Future<Either<Failure, UserEntity>> getUserProfile(String userId) async {
+  Future<Either<Failure, UserProfileEntity>> getUserProfile(String userId) async {
     try {
       final userModel = await localDataSource.getUserProfile(userId);
       return Right(userModel);

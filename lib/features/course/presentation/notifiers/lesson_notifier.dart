@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // Import LessonUnitEntity
+import 'package:sunnova_app/features/course/domain/entities/content_lesson_entity.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_course_detail.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_lesson_content.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_lesson_units.dart';
@@ -8,7 +8,7 @@ import 'package:sunnova_app/features/course/domain/usecases/mark_lesson_as_compl
 
 // Define LessonState
 class LessonState {
-  final LessonUnitEntity? currentLesson;
+  final ContentLessonEntity? currentLesson;
   final bool isLoading;
   final bool isCompleted;
   final String? errorMessage;
@@ -27,7 +27,7 @@ class LessonState {
   LessonState loading() => LessonState(isLoading: true);
 
   // Loaded state
-  LessonState loaded({LessonUnitEntity? currentLesson, bool? isCompleted}) =>
+  LessonState loaded({ContentLessonEntity? currentLesson, bool? isCompleted}) =>
       LessonState(
         currentLesson: currentLesson ?? this.currentLesson,
         isCompleted: isCompleted ?? this.isCompleted,
@@ -62,7 +62,7 @@ class LessonNotifier extends ChangeNotifier {
     _state = _state.loading();
     notifyListeners();
 
-    final result = await getLessonContent(GetLessonContentParams(lessonId: lessonId));
+    final result = await getLessonContent(LessonContentParams(lessonId: lessonId));
 
     result.fold(
       (failure) {

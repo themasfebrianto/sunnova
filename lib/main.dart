@@ -26,6 +26,7 @@ Future<void> main() async {
   }
 
   await di.init(); // Initialize dependency injection
+  await di.sl.allReady(); // Ensure all async singletons are ready
 
   // Seed the database
   final databaseHelper = di.sl<DatabaseHelper>();

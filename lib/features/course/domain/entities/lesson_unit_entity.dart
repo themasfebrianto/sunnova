@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 
 class LessonUnitEntity extends Equatable {
   final String id;
+  final String moduleId;
+  final int order;
   final String title;
   final String description;
   final String content; // Markdown or HTML content
@@ -11,6 +13,8 @@ class LessonUnitEntity extends Equatable {
 
   const LessonUnitEntity({
     required this.id,
+    required this.moduleId,
+    required this.order,
     required this.title,
     required this.description,
     required this.content,
@@ -22,6 +26,8 @@ class LessonUnitEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    moduleId,
+    order,
     title,
     description,
     content,

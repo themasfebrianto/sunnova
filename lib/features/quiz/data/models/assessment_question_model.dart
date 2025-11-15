@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:sunnova_app/features/quiz/domain/entities/assessment_question_entity.dart';
 
 class AssessmentQuestionModel extends AssessmentQuestionEntity {
@@ -5,13 +6,14 @@ class AssessmentQuestionModel extends AssessmentQuestionEntity {
     required super.id,
     required super.lessonId,
     required super.question,
-    required super.options,
+    required super.options, // List<String>
     required super.correctAnswerIndex,
     required super.explanation,
     required super.difficultyLevel,
     required super.ordering,
   });
 
+  // JSON serialization (app-level, not DB)
   factory AssessmentQuestionModel.fromJson(Map<String, dynamic> json) {
     return AssessmentQuestionModel(
       id: json['id'] as String,
@@ -38,12 +40,14 @@ class AssessmentQuestionModel extends AssessmentQuestionEntity {
     };
   }
 
+  // DB serialization
   factory AssessmentQuestionModel.fromMap(Map<String, dynamic> map) {
     return AssessmentQuestionModel(
       id: map['id'] as String,
       lessonId: map['lessonId'] as String,
       question: map['question'] as String,
-      options: List<String>.from(map['options'] as List),
+      options: (jsonDecode(map['options'] as String) as List<dynamic>)
+          .cast<String>(),
       correctAnswerIndex: map['correctAnswerIndex'] as int,
       explanation: map['explanation'] as String,
       difficultyLevel: map['difficultyLevel'] as int,
@@ -56,7 +60,7 @@ class AssessmentQuestionModel extends AssessmentQuestionEntity {
       'id': id,
       'lessonId': lessonId,
       'question': question,
-      'options': options,
+      'options': jsonEncode(options), // encode List<String> to String
       'correctAnswerIndex': correctAnswerIndex,
       'explanation': explanation,
       'difficultyLevel': difficultyLevel,

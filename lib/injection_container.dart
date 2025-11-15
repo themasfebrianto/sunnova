@@ -1,10 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:sunnova_app/core/db/database_helper.dart';
 import 'package:sunnova_app/features/auth/data/datasources/auth_local_data_source.dart';
-import 'package:sunnova_app/features/auth/data/repositories/user_repository_impl.dart';
-import 'package:sunnova_app/features/auth/domain/repositories/user_repository.dart';
-import 'package:sunnova_app/features/auth/domain/usecases/get_user_profile.dart'
-    as auth_usecase; // Alias for Auth GetUserProfile
+import 'package:sunnova_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:sunnova_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sunnova_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:sunnova_app/features/auth/domain/usecases/login_user.dart';
 import 'package:sunnova_app/features/auth/domain/usecases/logout_user.dart';
 import 'package:sunnova_app/features/auth/domain/usecases/register_user.dart';
@@ -22,6 +21,7 @@ import 'package:sunnova_app/features/course/domain/usecases/get_course_detail.da
 import 'package:sunnova_app/features/course/domain/usecases/get_lesson_units.dart';
 import 'package:sunnova_app/features/course/domain/usecases/get_user_lesson_progress.dart';
 import 'package:sunnova_app/features/course/domain/usecases/mark_lesson_as_completed.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_lesson_content.dart';
 import 'package:sunnova_app/features/course/presentation/notifiers/course_notifier.dart';
 import 'package:sunnova_app/features/course/presentation/notifiers/lesson_notifier.dart';
 import 'package:sunnova_app/features/quiz/data/datasources/quiz_local_data_source.dart';
@@ -44,6 +44,8 @@ import 'package:sunnova_app/features/leaderboard/domain/repositories/leaderboard
 import 'package:sunnova_app/features/leaderboard/domain/usecases/get_leaderboard.dart'; // Import GetLeaderboard
 import 'package:sunnova_app/features/leaderboard/presentation/notifiers/leaderboard_notifier.dart'; // Import LeaderboardNotifier
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 final sl = GetIt.instance; // sl is short for Service Locator
 
 Future<void> init() async {
@@ -51,25 +53,27 @@ Future<void> init() async {
   // Presentation
   sl.registerFactory(
     () => AuthNotifier(
-      loginUserUseCase: sl(),
-      registerUserUseCase: sl(),
+      loginUser: sl(),
+      registerUser: sl(),
+      getCurrentUser: sl(),
+      logoutUser: sl(),
     ),
   );
 
   // Use cases
-  sl.registerLazySingleton(() => auth_usecase.GetUserProfile(sl()));
+  sl.registerLazySingleton(() => GetCurrentUser(sl()));
   sl.registerLazySingleton(() => LoginUser(sl()));
   sl.registerLazySingleton(() => RegisterUser(sl()));
   sl.registerLazySingleton(() => LogoutUser(sl()));
 
   // Repository
-  sl.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(localDataSource: sl()),
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(localDataSource: sl()),
   );
 
   // Data sources
   sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(databaseHelper: sl()),
+    () => AuthLocalDataSourceImpl(databaseHelper: sl(), sharedPreferences: sl()),
   );
 
   //! Features - Home
@@ -116,6 +120,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetLessonUnits(sl()));
   sl.registerLazySingleton(() => GetUserLessonProgress(sl()));
   sl.registerLazySingleton(() => MarkLessonAsCompleted(sl()));
+  sl.registerLazySingleton(() => GetLessonContent(sl()));
 
   // Repository
   sl.registerLazySingleton<CourseRepository>(
@@ -151,10 +156,10 @@ Future<void> init() async {
   // Presentation
   sl.registerFactory(
     () => ProfileNotifier(
-      fetchUserProfile: sl<profile_usecase.GetUserProfile>(),
+      fetchUserProfile: sl(), // GetUserProfile use case
       fetchUserStats: sl(),
       fetchUserAchievements: sl(),
-      logoutUser: sl<LogoutUser>(),
+      logoutUser: sl(), // LogoutUser use case
     ),
   );
 
@@ -194,5 +199,5 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DatabaseHelper());
 
   //! External
-  // No external dependencies yet
+  sl.registerLazySingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
 }

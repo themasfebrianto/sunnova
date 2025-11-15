@@ -50,11 +50,12 @@ class _SplashPageState extends State<SplashPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Replace with your Sunnova logo
-            Image.asset(
-              'assets/images/sunnova_logo.png', // Make sure you have a logo in assets/images
-              width: 150,
-              height: 150,
-            ),
+            // Image.asset(
+            //   'assets/images/sunnova_logo.png', // Make sure you have a logo in assets/images
+            //   width: 150,
+            //   height: 150,
+            // ),
+            const SizedBox(height: 150, width: 150), // Placeholder for the logo
             const SizedBox(height: 20),
             const CircularProgressIndicator(),
             const SizedBox(height: 10),

@@ -48,6 +48,8 @@ void main() {
     description: 'Test Description',
     content: 'Test Content',
     durationMinutes: 10,
+    moduleId: tCourseModule.id,
+    order: 1,
   );
   final tLessonUnitList = [tLessonUnit];
 
@@ -226,7 +228,10 @@ void main() {
         // assert
         expect(courseNotifier.state.isLoading, false);
         expect(courseNotifier.state.progressMap, {});
-        expect(courseNotifier.state.errorMessage, 'Failed to fetch some lesson progress.');
+        expect(
+          courseNotifier.state.errorMessage,
+          'Failed to fetch some lesson progress.',
+        );
         verify(
           mockGetLessonUnits(
             GetLessonUnitsParams(moduleId: tModuleId, userId: tUserId),

@@ -4,12 +4,17 @@ import 'package:sunnova_app/features/course/data/models/lesson_unit_model.dart';
 import 'package:sunnova_app/features/course/data/models/user_lesson_progress_model.dart';
 import 'package:sunnova_app/core/db/database_helper.dart'; // Import DatabaseHelper
 
+import 'package:sunnova_app/features/course/data/models/content_lesson_model.dart'; // Import ContentLessonModel
+
 abstract class CourseLocalDataSource {
   Future<CourseModuleModel> getCourseDetail(String moduleId);
   Future<List<LessonUnitModel>> getLessonUnits(String moduleId, String userId);
-  Future<UserLessonProgressModel> getUserLessonProgress(String userId, String lessonId);
+  Future<UserLessonProgressModel> getUserLessonProgress(
+    String userId,
+    String lessonId,
+  );
   Future<void> markLessonAsCompleted(String userId, String lessonId);
-  Future<LessonUnitModel> getLessonContent(String lessonId);
+  Future<ContentLessonModel> getLessonContent(String lessonId);
 }
 
 class CourseLocalDataSourceImpl implements CourseLocalDataSource {
@@ -31,9 +36,14 @@ class CourseLocalDataSourceImpl implements CourseLocalDataSource {
   }
 
   @override
-  Future<List<LessonUnitModel>> getLessonUnits(String moduleId, String userId) async {
+  Future<List<LessonUnitModel>> getLessonUnits(
+    String moduleId,
+    String userId,
+  ) async {
     try {
-      final lessonMaps = await databaseHelper.getLessonUnitsByModuleId(moduleId, userId);
+      final lessonMaps = await databaseHelper.getLessonUnitsByModuleId(
+        moduleId,
+      );
       return lessonMaps.map((map) => LessonUnitModel.fromMap(map)).toList();
     } catch (e) {
       throw DatabaseException(e.toString());
@@ -41,9 +51,15 @@ class CourseLocalDataSourceImpl implements CourseLocalDataSource {
   }
 
   @override
-  Future<UserLessonProgressModel> getUserLessonProgress(String userId, String lessonId) async {
+  Future<UserLessonProgressModel> getUserLessonProgress(
+    String userId,
+    String lessonId,
+  ) async {
     try {
-      final progressMap = await databaseHelper.getUserLessonProgress(userId, lessonId);
+      final progressMap = await databaseHelper.getUserLessonProgress(
+        userId,
+        lessonId,
+      );
       if (progressMap != null) {
         return UserLessonProgressModel.fromMap(progressMap);
       }
@@ -75,13 +91,13 @@ class CourseLocalDataSourceImpl implements CourseLocalDataSource {
   }
 
   @override
-  Future<LessonUnitModel> getLessonContent(String lessonId) async {
+  Future<ContentLessonModel> getLessonContent(String lessonId) async {
     try {
       final lessonMap = await databaseHelper.getLessonUnit(lessonId);
       if (lessonMap != null) {
-        return LessonUnitModel.fromMap(lessonMap);
+        return ContentLessonModel.fromMap(lessonMap);
       }
-      throw DatabaseException('Lesson unit not found for id: $lessonId');
+      throw DatabaseException('Lesson content not found for id: $lessonId');
     } catch (e) {
       throw DatabaseException(e.toString());
     }

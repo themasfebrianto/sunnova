@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sunnova_app/core/db/database_helper.dart';
 import 'package:sunnova_app/core/error/exceptions.dart' as app_exceptions; // Alias our custom exception
@@ -9,15 +10,20 @@ import 'package:sunnova_app/features/auth/data/models/user_model.dart';
 
 import 'auth_local_data_source_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper])
+@GenerateMocks([DatabaseHelper, SharedPreferences])
 void main() {
   late AuthLocalDataSourceImpl dataSource;
   late MockDatabaseHelper mockDatabaseHelper;
+  late MockSharedPreferences mockSharedPreferences;
 
   setUp(() {
     sqfliteFfiInit();
     mockDatabaseHelper = MockDatabaseHelper();
-    dataSource = AuthLocalDataSourceImpl(databaseHelper: mockDatabaseHelper);
+    mockSharedPreferences = MockSharedPreferences();
+    dataSource = AuthLocalDataSourceImpl(
+      databaseHelper: mockDatabaseHelper,
+      sharedPreferences: mockSharedPreferences,
+    );
   });
 
   group('registerUser', () {

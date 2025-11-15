@@ -1,4 +1,4 @@
-import 'package:sunnova_app/features/course/domain/entities/content_lesson_entity.dart'; // Assuming ContentLessonEntity exists
+import 'package:sunnova_app/features/course/domain/entities/content_lesson_entity.dart';
 
 class ContentLessonModel extends ContentLessonEntity {
   const ContentLessonModel({
@@ -12,34 +12,6 @@ class ContentLessonModel extends ContentLessonEntity {
     required super.requiredTimeInSeconds,
     required super.xpReward,
   });
-
-  factory ContentLessonModel.fromJson(Map<String, dynamic> json) {
-    return ContentLessonModel(
-      id: json['id'] as String,
-      unitId: json['unitId'] as String,
-      title: json['title'] as String,
-      content: json['content'] as String,
-      videoUrl: json['videoUrl'] as String?,
-      audioUrl: json['audioUrl'] as String?,
-      ordering: json['ordering'] as int,
-      requiredTimeInSeconds: json['requiredTimeInSeconds'] as int,
-      xpReward: json['xpReward'] as int,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'unitId': unitId,
-      'title': title,
-      'content': content,
-      'videoUrl': videoUrl,
-      'audioUrl': audioUrl,
-      'ordering': ordering,
-      'requiredTimeInSeconds': requiredTimeInSeconds,
-      'xpReward': xpReward,
-    };
-  }
 
   factory ContentLessonModel.fromMap(Map<String, dynamic> map) {
     return ContentLessonModel(
@@ -67,5 +39,19 @@ class ContentLessonModel extends ContentLessonEntity {
       'requiredTimeInSeconds': requiredTimeInSeconds,
       'xpReward': xpReward,
     };
+  }
+
+  factory ContentLessonModel.fromEntity(ContentLessonEntity entity) {
+    return ContentLessonModel(
+      id: entity.id,
+      unitId: entity.unitId,
+      title: entity.title,
+      content: entity.content,
+      videoUrl: entity.videoUrl,
+      audioUrl: entity.audioUrl,
+      ordering: entity.ordering,
+      requiredTimeInSeconds: entity.requiredTimeInSeconds,
+      xpReward: entity.xpReward,
+    );
   }
 }

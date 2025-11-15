@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/core/usecases/usecase.dart';
-import 'package:sunnova_app/features/auth/domain/entities/user_entity.dart';
+import 'package:sunnova_app/features/auth/domain/entities/user_profile_entity.dart';
 import 'package:sunnova_app/features/auth/domain/usecases/logout_user.dart';
 import 'package:sunnova_app/features/home/domain/entities/user_game_stats_entity.dart';
 import 'package:sunnova_app/features/home/domain/usecases/get_user_game_stats.dart';
@@ -9,7 +9,7 @@ import 'package:sunnova_app/features/profile/domain/usecases/get_user_achievemen
 import 'package:sunnova_app/features/profile/domain/usecases/get_user_profile.dart';
 
 class ProfileState {
-  final UserEntity? user;
+  final UserProfileEntity? user;
   final UserGameStatsEntity? stats;
   final List<UserAchievementEntity> achievements;
   final bool isLoading;
@@ -24,7 +24,7 @@ class ProfileState {
   });
 
   ProfileState copyWith({
-    UserEntity? user,
+    UserProfileEntity? user,
     UserGameStatsEntity? stats,
     List<UserAchievementEntity>? achievements,
     bool? isLoading,
@@ -42,7 +42,7 @@ class ProfileState {
   factory ProfileState.initial() => ProfileState();
   ProfileState loading() => ProfileState(isLoading: true);
   ProfileState loaded({
-    UserEntity? user,
+    UserProfileEntity? user,
     UserGameStatsEntity? stats,
     List<UserAchievementEntity>? achievements,
   }) =>
@@ -75,11 +75,11 @@ class ProfileNotifier extends ChangeNotifier {
     _state = _state.loading();
     notifyListeners();
 
-    final userResult = await fetchUserProfile(GetUserProfileParams(userId: userId));
+    final userResult = await fetchUserProfile(GetUserProfileParams(id: userId));
     final statsResult = await fetchUserStats(GetUserGameStatsParams(userId: userId));
     final achievementsResult = await fetchUserAchievements(GetUserAchievementsParams(userId: userId));
 
-    UserEntity? user;
+    UserProfileEntity? user;
     UserGameStatsEntity? stats;
     List<UserAchievementEntity> achievements = [];
     String? errorMsg;

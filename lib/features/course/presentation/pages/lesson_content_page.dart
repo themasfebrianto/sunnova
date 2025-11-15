@@ -58,11 +58,6 @@ class _LessonContentPageState extends State<LessonContentPage> {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  lesson.description,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
                 const SizedBox(height: 20),
                 Text(
                   lesson.content,

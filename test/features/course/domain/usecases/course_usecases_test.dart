@@ -47,6 +47,8 @@ void main() {
     description: 'Test Description',
     content: 'Test Content',
     durationMinutes: 10,
+    moduleId: tCourseModule.id,
+    order: 1,
   );
   final tLessonUnitList = [tLessonUnit];
 

@@ -87,19 +87,21 @@ void main() {
       description: 'Test Description',
       content: 'Test Content',
       durationMinutes: 10,
+      moduleId: tModuleId,
+      order: 1,
     );
     final tLessonUnitList = [tLessonUnitModel];
 
     test('should return List<LessonUnitModel> when data is found', () async {
       // arrange
       when(
-        mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId, ''),
+        mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId),
       ).thenAnswer((_) async => [tLessonUnitModel.toMap()]);
       // act
       final result = await dataSource.getLessonUnits(tModuleId, '');
       // assert
       expect(result, tLessonUnitList);
-      verify(mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId, ''));
+      verify(mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId));
     });
 
     test(
@@ -107,7 +109,7 @@ void main() {
       () async {
         // arrange
         when(
-          mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId, ''),
+          mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId),
         ).thenThrow(Exception());
         // act
         final call = dataSource.getLessonUnits;
@@ -116,7 +118,7 @@ void main() {
           () => call(tModuleId, ''),
           throwsA(isA<app_exceptions.DatabaseException>()),
         );
-        verify(mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId, ''));
+        verify(mockDatabaseHelper.getLessonUnitsByModuleId(tModuleId));
       },
     );
   });

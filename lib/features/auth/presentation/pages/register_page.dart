@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunnova_app/features/auth/presentation/notifiers/auth_notifier.dart';
+import 'package:sunnova_app/features/auth/presentation/pages/login_page.dart';
+import 'package:sunnova_app/features/home/presentation/pages/home_page.dart';
 import 'package:sunnova_app/features/auth/presentation/widgets/auth_text_field.dart';
-
-enum Gender { male, female }
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,9 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  Gender? _selectedGender;
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  String? _selectedGender;
 
   @override
   void dispose() {
@@ -33,39 +32,29 @@ class _RegisterPageState extends State<RegisterPage> {
   void _register() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedGender == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Please select a gender')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select your gender')),
+        );
         return;
       }
 
       final authNotifier = Provider.of<AuthNotifier>(context, listen: false);
       await authNotifier.register(
-        _nameController.text,
         _emailController.text,
         _passwordController.text,
-        _selectedGender!.name,
+        _nameController.text,
+        _selectedGender!,
       );
 
-      if (!mounted) return; // Check if the widget is still in the tree
-
       if (authNotifier.state.status == AuthStatus.authenticated) {
-        if (!mounted) return; // Check again after await
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration Successful! Please login.'),
-          ),
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage()),
         );
-        if (!mounted) return; // Check again after await
-        Navigator.of(context).pop(); // Go back to login page
-      } else if (authNotifier.state.status == AuthStatus.error) {
-        if (!mounted) return; // Check again after await
+      } else if (authNotifier.state.errorMessage != null) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              authNotifier.state.errorMessage ?? 'Registration Failed',
-            ),
-          ),
+          SnackBar(content: Text(authNotifier.state.errorMessage!)),
         );
       }
     }
@@ -83,58 +72,51 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  // Removed const
-                  'Create Your Account',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge, // Use theme typography
-                ),
-                const SizedBox(height: 40),
                 AuthTextField(
-                  labelText: 'Name',
                   controller: _nameController,
+                  labelText: 'Full Name',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Please enter your full name';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 AuthTextField(
-                  labelText: 'Email',
                   controller: _emailController,
+                  labelText: 'Email',
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email address';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 AuthTextField(
+                  controller: _passwordController,
                   labelText: 'Password',
                   obscureText: true,
-                  controller: _passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 AuthTextField(
+                  controller: _confirmPasswordController,
                   labelText: 'Confirm Password',
                   obscureText: true,
-                  controller: _confirmPasswordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please confirm your password';
@@ -145,72 +127,52 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Gender',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ), // Use theme typography
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<Gender>(
-                            title: const Text('Male'),
-                            value: Gender.male,
-                            groupValue: _selectedGender,
-                            onChanged: (Gender? value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<Gender>(
-                            title: const Text('Female'),
-                            value: Gender.female,
-                            groupValue: _selectedGender,
-                            onChanged: (Gender? value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_selectedGender == null &&
-                        _formKey.currentState != null &&
-                        !_formKey.currentState!.validate())
-                      const Padding(
-                        padding: EdgeInsets.only(left: 12.0),
-                        child: Text(
-                          'Please select a gender',
-                          style: TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                      ),
-                  ],
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedGender,
+                  hint: const Text('Select Gender'),
+                  items: <String>['Male', 'Female', 'Other']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedGender = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select your gender';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Gender',
+                  ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 24),
                 Consumer<AuthNotifier>(
                   builder: (context, authNotifier, child) {
                     return ElevatedButton(
-                      onPressed: authNotifier.state.status == AuthStatus.loading
-                          ? null
-                          : _register,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(
-                          double.infinity,
-                          50,
-                        ), // Full width button
-                      ),
-                      child: authNotifier.state.status == AuthStatus.loading
+                      onPressed: authNotifier.state.status == AuthStatus.registering ? null : _register,
+                      child: authNotifier.state.status == AuthStatus.registering
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text('Register'),
                     );
                   },
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
+                  child: const Text('Already have an account? Login here.'),
                 ),
               ],
             ),

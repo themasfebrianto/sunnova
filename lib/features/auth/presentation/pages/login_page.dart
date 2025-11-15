@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunnova_app/features/auth/presentation/notifiers/auth_notifier.dart';
 import 'package:sunnova_app/features/auth/presentation/pages/register_page.dart';
-import 'package:sunnova_app/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:sunnova_app/features/home/presentation/pages/home_page.dart';
+import 'package:sunnova_app/features/auth/presentation/widgets/auth_text_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,21 +32,15 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
 
-      if (!mounted) return; // Check if the widget is still in the tree
-
       if (authNotifier.state.status == AuthStatus.authenticated) {
-        if (!mounted) return; // Check again after await
+        if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomePage()),
         );
-      } else if (authNotifier.state.status == AuthStatus.error) {
-        if (!mounted) return; // Check again after await
+      } else if (authNotifier.state.errorMessage != null) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              authNotifier.state.errorMessage ?? 'Login Failed',
-            ),
-          ),
+          SnackBar(content: Text(authNotifier.state.errorMessage!)),
         );
       }
     }
@@ -64,60 +58,54 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Welcome Back!',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 40),
                 AuthTextField(
-                  labelText: 'Email',
                   controller: _emailController,
+                  labelText: 'Email',
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email address';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 AuthTextField(
+                  controller: _passwordController,
                   labelText: 'Password',
                   obscureText: true,
-                  controller: _passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
+                    }
                     return null;
                   },
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 24),
                 Consumer<AuthNotifier>(
                   builder: (context, authNotifier, child) {
                     return ElevatedButton(
-                      onPressed: authNotifier.state.status == AuthStatus.loading
-                          ? null
-                          : _login,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: authNotifier.state.status == AuthStatus.loading
+                      onPressed: authNotifier.state.status == AuthStatus.authenticating ? null : _login,
+                      child: authNotifier.state.status == AuthStatus.authenticating
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text('Login'),
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const RegisterPage()),
                     );
                   },
-                  child: const Text('Don\'t have an account? Register'),
+                  child: const Text('Don\'t have an account? Register here.'),
                 ),
               ],
             ),

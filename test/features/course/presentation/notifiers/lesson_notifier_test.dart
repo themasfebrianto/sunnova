@@ -10,6 +10,7 @@ import 'package:sunnova_app/features/course/domain/usecases/get_lesson_units.dar
 import 'package:sunnova_app/features/course/domain/usecases/get_user_lesson_progress.dart';
 import 'package:sunnova_app/features/course/domain/usecases/mark_lesson_as_completed.dart';
 import 'package:sunnova_app/features/course/presentation/notifiers/lesson_notifier.dart';
+import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart';
 
 import 'lesson_notifier_test.mocks.dart';
 
@@ -18,7 +19,7 @@ import 'lesson_notifier_test.mocks.dart';
   MarkLessonAsCompleted,
   GetCourseDetail,
   GetLessonUnits,
-  GetUserLessonProgress
+  GetUserLessonProgress,
 ])
 void main() {
   late LessonNotifier lessonNotifier;
@@ -43,14 +44,28 @@ void main() {
     );
   });
 
+  final tCourseModule = CourseModuleEntity(
+    id: 'mod1',
+    title: 'Test Module',
+    description: 'Test Description',
+    imageUrl: 'test.png',
+    requiredXpToUnlock: 0,
+    isLocked: false,
+    totalLessons: 5,
+    completedLessons: 0,
+  );
+
   final tLessonUnit = LessonUnitEntity(
     id: 'lesson_1',
     title: 'Introduction to Tajwid',
     description: 'Understand the importance of Tajwid.',
-    content: 'This is the content of the lesson. It can be **Markdown** or HTML.',
+    content:
+        'This is the content of the lesson. It can be **Markdown** or HTML.',
     videoUrl: null,
     audioUrl: null,
     durationMinutes: 15,
+    moduleId: tCourseModule.id,
+    order: 1,
   );
 
   group('loadLessonContent', () {
@@ -60,15 +75,18 @@ void main() {
       'should set state to loading and then loaded with lesson content on successful fetch',
       () async {
         // arrange
-        when(mockGetLessonContent(any))
-            .thenAnswer((_) async => Right(tLessonUnit));
+        when(
+          mockGetLessonContent(any),
+        ).thenAnswer((_) async => Right(tLessonUnit));
         // act
         await lessonNotifier.loadLessonContent(tLessonId);
         // assert
         expect(lessonNotifier.state.isLoading, false);
         expect(lessonNotifier.state.currentLesson, tLessonUnit);
         expect(lessonNotifier.state.errorMessage, null);
-        verify(mockGetLessonContent(GetLessonContentParams(lessonId: tLessonId)));
+        verify(
+          mockGetLessonContent(GetLessonContentParams(lessonId: tLessonId)),
+        );
         verifyNoMoreInteractions(mockGetLessonContent);
       },
     );
@@ -77,15 +95,18 @@ void main() {
       'should set state to loading and then error on failed fetch',
       () async {
         // arrange
-        when(mockGetLessonContent(any))
-            .thenAnswer((_) async => Left(DatabaseFailure('Error')));
+        when(
+          mockGetLessonContent(any),
+        ).thenAnswer((_) async => Left(DatabaseFailure('Error')));
         // act
         await lessonNotifier.loadLessonContent(tLessonId);
         // assert
         expect(lessonNotifier.state.isLoading, false);
         expect(lessonNotifier.state.currentLesson, null);
         expect(lessonNotifier.state.errorMessage, 'Error');
-        verify(mockGetLessonContent(GetLessonContentParams(lessonId: tLessonId)));
+        verify(
+          mockGetLessonContent(GetLessonContentParams(lessonId: tLessonId)),
+        );
         verifyNoMoreInteractions(mockGetLessonContent);
       },
     );
@@ -99,34 +120,41 @@ void main() {
       'should set state to loading and then completed on successful mark',
       () async {
         // arrange
-        when(mockMarkLessonAsCompleted(any))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          mockMarkLessonAsCompleted(any),
+        ).thenAnswer((_) async => const Right(null));
         // act
         await lessonNotifier.completeLesson(tUserId, tLessonId);
         // assert
         expect(lessonNotifier.state.isLoading, false);
         expect(lessonNotifier.state.isCompleted, true);
         expect(lessonNotifier.state.errorMessage, null);
-        verify(mockMarkLessonAsCompleted(MarkLessonAsCompletedParams(userId: tUserId, lessonId: tLessonId)));
+        verify(
+          mockMarkLessonAsCompleted(
+            MarkLessonAsCompletedParams(userId: tUserId, lessonId: tLessonId),
+          ),
+        );
         verifyNoMoreInteractions(mockMarkLessonAsCompleted);
       },
     );
 
-    test(
-      'should set state to loading and then error on failed mark',
-      () async {
-        // arrange
-        when(mockMarkLessonAsCompleted(any))
-            .thenAnswer((_) async => Left(DatabaseFailure('Error')));
-        // act
-        await lessonNotifier.completeLesson(tUserId, tLessonId);
-        // assert
-        expect(lessonNotifier.state.isLoading, false);
-        expect(lessonNotifier.state.isCompleted, false);
-        expect(lessonNotifier.state.errorMessage, 'Error');
-        verify(mockMarkLessonAsCompleted(MarkLessonAsCompletedParams(userId: tUserId, lessonId: tLessonId)));
-        verifyNoMoreInteractions(mockMarkLessonAsCompleted);
-      },
-    );
+    test('should set state to loading and then error on failed mark', () async {
+      // arrange
+      when(
+        mockMarkLessonAsCompleted(any),
+      ).thenAnswer((_) async => Left(DatabaseFailure('Error')));
+      // act
+      await lessonNotifier.completeLesson(tUserId, tLessonId);
+      // assert
+      expect(lessonNotifier.state.isLoading, false);
+      expect(lessonNotifier.state.isCompleted, false);
+      expect(lessonNotifier.state.errorMessage, 'Error');
+      verify(
+        mockMarkLessonAsCompleted(
+          MarkLessonAsCompletedParams(userId: tUserId, lessonId: tLessonId),
+        ),
+      );
+      verifyNoMoreInteractions(mockMarkLessonAsCompleted);
+    });
   });
 }

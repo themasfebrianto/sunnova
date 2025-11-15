@@ -80,6 +80,8 @@ void main() {
       description: 'Test Description',
       content: 'Test Content',
       durationMinutes: 10,
+      moduleId: tModuleId,
+      order: 1,
     );
     final List<LessonUnitModel> tLessonUnitList = [tLessonUnitModel];
     final List<LessonUnitEntity> tLessonUnitEntityList = [tLessonUnitModel];

@@ -26,7 +26,9 @@ class BadgeGrid extends StatelessWidget {
         final badge = badges[index];
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -38,18 +40,18 @@ class BadgeGrid extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                badge.name,
+                badge.title,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               if (!badge.isUnlocked)
                 Text(
                   'Locked',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.red,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.red),
                 ),
             ],
           ),

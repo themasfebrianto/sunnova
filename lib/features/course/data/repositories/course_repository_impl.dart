@@ -3,6 +3,7 @@ import 'package:sunnova_app/core/error/exceptions.dart';
 import 'package:sunnova_app/core/error/failures.dart';
 import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart';
 import 'package:sunnova_app/features/course/data/datasources/course_local_data_source.dart';
+import 'package:sunnova_app/features/course/domain/entities/content_lesson_entity.dart';
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart';
 import 'package:sunnova_app/features/course/domain/entities/user_lesson_progress_entity.dart';
 import 'package:sunnova_app/features/course/domain/repositories/course_repository.dart';
@@ -53,10 +54,10 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
-  Future<Either<Failure, LessonUnitEntity>> getLessonContent(String lessonId) async {
+  Future<Either<Failure, ContentLessonEntity>> getLessonContent(String lessonId) async {
     try {
-      final lessonUnitModel = await localDataSource.getLessonContent(lessonId);
-      return Right(lessonUnitModel);
+      final contentLessonModel = await localDataSource.getLessonContent(lessonId);
+      return Right(contentLessonModel);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
     }
