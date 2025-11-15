@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart';
 import 'package:sunnova_app/features/home/domain/entities/user_game_stats_entity.dart';
+import 'package:sunnova_app/features/home/domain/usecases/get_user_game_stats.dart';
+import 'package:sunnova_app/features/home/domain/usecases/get_course_modules.dart';
+import 'package:sunnova_app/core/usecases/usecase.dart'; // Import NoParams
 
 // Define HomeState
 class HomeState {
@@ -38,58 +41,52 @@ class HomeState {
 }
 
 class HomeNotifier extends ChangeNotifier {
+  final GetUserGameStats getUserGameStats;
+  final GetCourseModules getCourseModules;
+
+  HomeNotifier({
+    required this.getUserGameStats,
+    required this.getCourseModules,
+  });
+
   HomeState _state = HomeState.initial();
   HomeState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchUserStats(String userId) async {
+  Future<void> loadUserStats(String userId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      userStats: UserGameStatsEntity(
-        xp: 1200,
-        level: 5,
-        currentStreak: 7,
-        longestStreak: 15,
-        lessonsCompleted: 25,
-        quizzesPassed: 10,
-      ),
+
+    final result = await getUserGameStats(GetUserGameStatsParams(userId: userId));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        notifyListeners();
+      },
+      (stats) {
+        _state = _state.loaded(userStats: stats);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
-  Future<void> fetchCourseModules() async {
+  Future<void> loadCourseModules() async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      modules: [
-        CourseModuleEntity(
-          id: '1',
-          title: 'Tajwid Basic',
-          description: 'Learn the basics of Tajwid.',
-          imageUrl: 'https://via.placeholder.com/150',
-          requiredXpToUnlock: 0,
-          isLocked: false,
-          totalLessons: 10,
-          completedLessons: 3,
-        ),
-        CourseModuleEntity(
-          id: '2',
-          title: 'Fiqh Fundamentals',
-          description: 'Understand the fundamentals of Fiqh.',
-          imageUrl: 'https://via.placeholder.com/150',
-          requiredXpToUnlock: 500,
-          isLocked: true,
-          totalLessons: 12,
-          completedLessons: 0,
-        ),
-      ],
+
+    final result = await getCourseModules(NoParams());
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        notifyListeners();
+      },
+      (modules) {
+        _state = _state.loaded(modules: modules);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
   Future<void> checkDailyLogin() async {

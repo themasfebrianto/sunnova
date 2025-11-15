@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart'; // Import UserAchievementEntity
+import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart'; // Import BadgeEntity
 
 class BadgeGrid extends StatelessWidget {
   final List<UserAchievementEntity> achievements;
+  final List<BadgeEntity> badges;
 
-  const BadgeGrid({super.key, required this.achievements});
+  const BadgeGrid({super.key, required this.achievements, required this.badges});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +19,21 @@ class BadgeGrid extends StatelessWidget {
         mainAxisSpacing: 10,
         childAspectRatio: 0.8, // Adjust as needed
       ),
-      itemCount: achievements.length,
+      itemCount: badges.length, // Use badges length
       itemBuilder: (context, index) {
-        final achievement = achievements[index];
+        final badge = badges[index];
+        final userAchievement = achievements.firstWhere(
+          (ach) => ach.badgeId == badge.id,
+          orElse: () => UserAchievementEntity(
+            id: '',
+            userId: '',
+            badgeId: badge.id,
+            unlockedAt: DateTime.now().add(const Duration(days: 365)), // Future date for locked
+            isNew: false,
+          ),
+        );
+        final bool isUnlocked = userAchievement.unlockedAt.isBefore(DateTime.now());
+
         return Column(
           children: [
             Stack(
@@ -27,19 +41,18 @@ class BadgeGrid extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: achievement.isUnlocked
+                  backgroundColor: isUnlocked
                       ? Theme.of(context).colorScheme.secondaryContainer
                       : Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: Icon(
-                    Icons
-                        .star, // Placeholder icon, could be dynamic based on achievement
+                    Icons.star, // Placeholder icon, could be dynamic based on badge.icon
                     size: 30,
-                    color: achievement.isUnlocked
+                    color: isUnlocked
                         ? Theme.of(context).colorScheme.secondary
                         : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
                   ),
                 ),
-                if (!achievement.isUnlocked)
+                if (!isUnlocked)
                   Icon(
                     Icons.lock,
                     size: 20,
@@ -51,7 +64,7 @@ class BadgeGrid extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              achievement.title,
+              badge.title,
               style: Theme.of(context).textTheme.labelSmall,
               textAlign: TextAlign.center,
               maxLines: 2,

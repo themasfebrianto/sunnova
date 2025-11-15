@@ -33,6 +33,7 @@ class _SplashPageState extends State<SplashPage> {
       if (userId != null && userId.isNotEmpty) {
         await authNotifier.checkUserProfile(userId); // Call the actual use case
 
+        if (!mounted) return; // Check again after await
         if (authNotifier.state.status == AuthStatus.authenticated) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const HomePage()),
@@ -44,6 +45,7 @@ class _SplashPageState extends State<SplashPage> {
           );
         }
       } else {
+        if (!mounted) return; // Check again after await
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );

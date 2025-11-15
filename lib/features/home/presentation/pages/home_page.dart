@@ -65,10 +65,10 @@ class _HomeContentState extends State<_HomeContent> {
     // Fetch data when the widget is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeNotifier = Provider.of<HomeNotifier>(context, listen: false);
-      homeNotifier.fetchUserStats(
+      homeNotifier.loadUserStats(
         'current_user_id',
       ); // Replace with actual user ID
-      homeNotifier.fetchCourseModules();
+      homeNotifier.loadCourseModules();
     });
   }
 
@@ -128,8 +128,10 @@ class _HomeContentState extends State<_HomeContent> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CourseDetailPage(courseModuleId: module.id),
+                            builder: (context) => CourseDetailPage(
+                              courseModuleId: module.id,
+                              userModuleId: 'current_user_id',
+                            ),
                           ),
                         );
                       },

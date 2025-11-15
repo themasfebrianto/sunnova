@@ -12,7 +12,7 @@ class GetUserProfile extends UseCase<UserEntity, GetUserProfileParams> {
 
   @override
   Future<Either<Failure, UserEntity>> call(GetUserProfileParams params) async {
-    return await repository.getUser(params.id);
+    return await repository.getUserProfile(params.id);
   }
 }
 

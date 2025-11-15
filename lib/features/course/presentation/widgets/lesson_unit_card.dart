@@ -28,7 +28,7 @@ class LessonUnitCard extends StatelessWidget {
                 isCompleted ? Icons.check_circle : Icons.circle_outlined,
                 color: isCompleted
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
                 size: 24, // Use iconLarge from theme
               ),
               const SizedBox(width: 16), // Use space16 from theme

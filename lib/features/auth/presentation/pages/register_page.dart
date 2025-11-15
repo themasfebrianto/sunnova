@@ -47,14 +47,19 @@ class _RegisterPageState extends State<RegisterPage> {
         _selectedGender!.name,
       );
 
+      if (!mounted) return; // Check if the widget is still in the tree
+
       if (authNotifier.state.status == AuthStatus.authenticated) {
+        if (!mounted) return; // Check again after await
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registration Successful! Please login.'),
           ),
         );
+        if (!mounted) return; // Check again after await
         Navigator.of(context).pop(); // Go back to login page
       } else if (authNotifier.state.status == AuthStatus.error) {
+        if (!mounted) return; // Check again after await
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

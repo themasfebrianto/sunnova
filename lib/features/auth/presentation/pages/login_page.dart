@@ -30,6 +30,8 @@ class _LoginPageState extends State<LoginPage> {
       final authNotifier = Provider.of<AuthNotifier>(context, listen: false);
       await authNotifier.login(_emailController.text, _passwordController.text);
 
+      if (!mounted) return; // Check if the widget is still in the tree
+
       if (authNotifier.state.status == AuthStatus.authenticated) {
         // Save user ID to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -38,10 +40,12 @@ class _LoginPageState extends State<LoginPage> {
           authNotifier.state.user!.uid,
         ); // Save the actual UID
 
+        if (!mounted) return; // Check again after await
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else if (authNotifier.state.status == AuthStatus.error) {
+        if (!mounted) return; // Check again after await
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authNotifier.state.errorMessage ?? 'Login Failed'),

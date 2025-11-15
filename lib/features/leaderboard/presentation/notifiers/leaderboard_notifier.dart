@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/features/leaderboard/domain/entities/leaderboard_rank_entity.dart'; // Import LeaderboardRankEntity
+import 'package:sunnova_app/features/leaderboard/domain/usecases/get_leaderboard.dart';
 
 // Define LeaderboardState
 class LeaderboardState {
@@ -45,46 +46,62 @@ class LeaderboardState {
 }
 
 class LeaderboardNotifier extends ChangeNotifier {
+  final GetLeaderboard getLeaderboard;
+
+  LeaderboardNotifier({
+    required this.getLeaderboard,
+  });
+
   LeaderboardState _state = LeaderboardState.initial();
   LeaderboardState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchLeaderboard(String rankType) async {
+  Future<void> loadLeaderboard(String rankType) async {
     _state = _state.loading();
     notifyListeners();
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
 
     final List<LeaderboardRankEntity> fetchedRanks = [
-      LeaderboardRankEntity(
+      const LeaderboardRankEntity(
         userId: 'user1',
         userName: 'Alice',
-        xp: 1500,
+        scoreValue: 1500,
         rank: 1,
+        userPhotoUrl: 'https://via.placeholder.com/50',
+        rankType: 'WEEKLY',
       ),
-      LeaderboardRankEntity(
+      const LeaderboardRankEntity(
         userId: 'user2',
         userName: 'Bob',
-        xp: 1400,
+        scoreValue: 1400,
         rank: 2,
+        userPhotoUrl: 'https://via.placeholder.com/50',
+        rankType: 'WEEKLY',
       ),
-      LeaderboardRankEntity(
+      const LeaderboardRankEntity(
         userId: 'user3',
         userName: 'Charlie',
-        xp: 1300,
+        scoreValue: 1300,
         rank: 3,
+        userPhotoUrl: 'https://via.placeholder.com/50',
+        rankType: 'WEEKLY',
       ),
-      LeaderboardRankEntity(
+      const LeaderboardRankEntity(
         userId: 'current_user_id',
         userName: 'You',
-        xp: 1200,
+        scoreValue: 1200,
         rank: 4,
+        userPhotoUrl: 'https://via.placeholder.com/50',
+        rankType: 'WEEKLY',
       ),
-      LeaderboardRankEntity(
+      const LeaderboardRankEntity(
         userId: 'user4',
         userName: 'David',
-        xp: 1100,
+        scoreValue: 1100,
         rank: 5,
+        userPhotoUrl: 'https://via.placeholder.com/50',
+        rankType: 'WEEKLY',
       ),
     ];
 
@@ -98,6 +115,6 @@ class LeaderboardNotifier extends ChangeNotifier {
 
   void switchFilter(String filter) {
     _state = _state.loaded(selectedFilter: filter);
-    fetchLeaderboard(filter); // Fetch data for the new filter
+    loadLeaderboard(filter); // Fetch data for the new filter
   }
 }

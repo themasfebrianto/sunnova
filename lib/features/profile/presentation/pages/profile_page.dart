@@ -4,6 +4,7 @@ import 'package:sunnova_app/features/profile/presentation/notifiers/profile_noti
 import 'package:sunnova_app/features/profile/presentation/widgets/stats_card.dart';
 import 'package:sunnova_app/features/profile/presentation/widgets/badge_grid.dart';
 import 'package:sunnova_app/features/profile/presentation/widgets/achievement_item.dart';
+import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart';
 
 class ProfilePage extends StatefulWidget {
   // Changed to StatefulWidget
@@ -22,15 +23,16 @@ class _ProfilePageState extends State<ProfilePage> {
         context,
         listen: false,
       );
-      profileNotifier.fetchUserProfile(
+      profileNotifier.loadUserProfile(
         'current_user_id',
       ); // Replace with actual user ID
-      profileNotifier.fetchUserStats(
+      profileNotifier.loadUserStats(
         'current_user_id',
       ); // Replace with actual user ID
-      profileNotifier.fetchUserAchievements(
+      profileNotifier.loadUserAchievements(
         'current_user_id',
       ); // Replace with actual user ID
+      profileNotifier.loadBadges();
     });
   }
 
@@ -54,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
           final user = profileNotifier.state.user;
           final stats = profileNotifier.state.stats;
           final achievements = profileNotifier.state.achievements;
+          final badges = profileNotifier.state.badges;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -104,6 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 150, // Adjust height as needed
                   child: BadgeGrid(
                     achievements: achievements,
+                    badges: badges,
                   ), // Pass actual achievements
                 ),
                 const SizedBox(height: 30),
@@ -118,10 +122,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   itemCount: achievements.length,
                   itemBuilder: (context, index) {
                     final achievement = achievements[index];
+                    final badge = badges.firstWhere(
+                      (b) => b.id == achievement.badgeId,
+                      orElse: () => const BadgeEntity(
+                        id: '',
+                        title: 'Unknown Badge',
+                        description: '',
+                        icon: '',
+                        targetValue: 0,
+                        gemReward: 0,
+                      ),
+                    );
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: AchievementItem(
                         achievement: achievement,
+                        badge: badge,
                       ), // Pass actual achievement
                     );
                   },

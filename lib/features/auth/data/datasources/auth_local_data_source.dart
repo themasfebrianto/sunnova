@@ -1,16 +1,14 @@
-import 'package:sqflite/sqflite.dart' hide DatabaseException;
-import 'package:sunnova_app/core/db/database_helper.dart';
-import 'package:sunnova_app/core/error/exceptions.dart'
-    as core_exceptions; // Alias core exceptions
+import 'package:sunnova_app/core/error/exceptions.dart';
 import 'package:sunnova_app/features/auth/data/models/user_model.dart';
+import 'package:sunnova_app/core/db/database_helper.dart'; // Import DatabaseHelper
 
 abstract class AuthLocalDataSource {
-  Future<UserModel> getUser(String uid);
-  Future<void> saveUser(UserModel user);
-  Future<void> deleteUser(String uid);
+  Future<UserModel> registerUser(
+      String name, String email, String password, String gender);
   Future<UserModel> loginUser(String email, String password);
-  Future<void> registerUser(UserModel user);
   Future<void> logoutUser();
+  Future<UserModel> getUserProfile(String uid);
+  Future<void> saveUser(UserModel user);
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
@@ -19,66 +17,71 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   AuthLocalDataSourceImpl({required this.databaseHelper});
 
   @override
-  Future<UserModel> getUser(String uid) async {
-    final db = await databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'users',
-      where: 'uid = ?',
-      whereArgs: [uid],
-    );
-    if (maps.isNotEmpty) {
-      return UserModel.fromMap(maps.first);
-    } else {
-      throw core_exceptions.DatabaseException(); // Use my custom DatabaseException
+  Future<UserModel> registerUser(
+      String name, String email, String password, String gender) async {
+    try {
+      // Simulate database operation
+      final newUser = UserModel(
+        uid: 'user_${DateTime.now().millisecondsSinceEpoch}',
+        email: email,
+        displayName: name,
+        photoURL: null,
+        gender: gender,
+        fcmToken: null,
+        isPremium: false,
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
+        password: password, // Store password for local authentication
+      );
+      await databaseHelper.insertUser(newUser.toMap());
+      return newUser;
+    } catch (e) {
+      throw DatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<UserModel> loginUser(String email, String password) async {
+    try {
+      final userMap = await databaseHelper.getUserByEmail(email);
+      if (userMap != null) {
+        final user = UserModel.fromMap(userMap);
+        if (user.password == password) {
+          return user;
+        }
+      }
+      throw DatabaseException('Invalid credentials');
+    } catch (e) {
+      throw DatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> logoutUser() async {
+    // Simulate clearing session/token locally
+    // In a real app, this might involve clearing SharedPreferences or a local token
+    return Future.value();
+  }
+
+  @override
+  Future<UserModel> getUserProfile(String uid) async {
+    try {
+      final userMap = await databaseHelper.getUser(uid);
+      if (userMap != null) {
+        return UserModel.fromMap(userMap);
+      }
+      throw DatabaseException('User not found');
+    } catch (e) {
+      throw DatabaseException(e.toString());
     }
   }
 
   @override
   Future<void> saveUser(UserModel user) async {
-    final db = await databaseHelper.database;
-    await db.insert(
-      'users',
-      user.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  @override
-  Future<void> deleteUser(String uid) async {
-    final db = await databaseHelper.database;
-    await db.delete('users', where: 'uid = ?', whereArgs: [uid]);
-  }
-
-  @override
-  Future<UserModel> loginUser(String email, String password) async {
-    final db = await databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'users',
-      where:
-          'email = ? AND password = ?', // In a real app, password should be hashed
-      whereArgs: [email, password],
-    );
-    if (maps.isNotEmpty) {
-      return UserModel.fromMap(maps.first);
-    } else {
-      throw core_exceptions.DatabaseException(); // Use my custom DatabaseException
+    try {
+      await databaseHelper.insertUser(user.toMap());
+    } catch (e) {
+      throw DatabaseException(e.toString());
     }
-  }
-
-  @override
-  Future<void> registerUser(UserModel user) async {
-    final db = await databaseHelper.database;
-    await db.insert(
-      'users',
-      user.toMap(),
-      conflictAlgorithm:
-          ConflictAlgorithm.abort, // Abort if user with same uid/email exists
-    );
-  }
-
-  @override
-  Future<void> logoutUser() async {
-    // For local data source, logout might mean clearing current user session or data
-    // For now, it's a no-op or could clear SharedPreferences
   }
 }

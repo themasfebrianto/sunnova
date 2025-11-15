@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:sunnova_app/features/profile/domain/entities/user_profile_entity.dart';
+import 'package:sunnova_app/features/auth/domain/entities/user_entity.dart';
 import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart';
-import 'package:sunnova_app/features/home/domain/entities/user_game_stats_entity.dart'; // Import UserGameStatsEntity
+import 'package:sunnova_app/features/home/domain/entities/user_game_stats_entity.dart';
+import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart'; // Import BadgeEntity
+import 'package:sunnova_app/features/profile/domain/usecases/get_user_profile.dart';
+import 'package:sunnova_app/features/home/domain/usecases/get_user_game_stats.dart';
+import 'package:sunnova_app/features/profile/domain/usecases/get_user_achievements.dart';
+import 'package:sunnova_app/features/profile/domain/usecases/get_badges.dart';
+import 'package:sunnova_app/features/auth/domain/usecases/logout_user.dart';
+import 'package:sunnova_app/core/usecases/usecase.dart'; // Import NoParams
 
 // Define ProfileState
 class ProfileState {
-  final UserProfileEntity? user;
+  final UserEntity? user;
   final UserGameStatsEntity? stats;
   final List<UserAchievementEntity> achievements;
+  final List<BadgeEntity> badges; // Add badges list
   final bool isLoading;
   final String? errorMessage;
 
@@ -15,6 +23,7 @@ class ProfileState {
     this.user,
     this.stats,
     this.achievements = const [],
+    this.badges = const [], // Initialize badges
     this.isLoading = false,
     this.errorMessage,
   });
@@ -27,13 +36,15 @@ class ProfileState {
 
   // Loaded state
   ProfileState loaded({
-    UserProfileEntity? user,
+    UserEntity? user,
     UserGameStatsEntity? stats,
     List<UserAchievementEntity>? achievements,
+    List<BadgeEntity>? badges, // Add badges to loaded state
   }) => ProfileState(
     user: user ?? this.user,
     stats: stats ?? this.stats,
     achievements: achievements ?? this.achievements,
+    badges: badges ?? this.badges, // Update badges
     isLoading: false,
   );
 
@@ -43,102 +54,76 @@ class ProfileState {
 }
 
 class ProfileNotifier extends ChangeNotifier {
+  final GetUserProfile fetchUserProfile;
+  final GetUserGameStats fetchUserStats;
+  final GetUserAchievements fetchUserAchievements;
+  final GetBadges fetchBadges;
+  final LogoutUser logout;
+
+  ProfileNotifier({
+    required this.fetchUserProfile,
+    required this.fetchUserStats,
+    required this.fetchUserAchievements,
+    required this.fetchBadges,
+    required this.logout,
+  });
+
   ProfileState _state = ProfileState.initial();
   ProfileState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchUserProfile(String userId) async {
+  Future<void> loadUserProfile(String userId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      user: UserProfileEntity(
-        uid: userId,
-        email: 'john.doe@example.com',
-        displayName: 'John Doe',
-        gender: 'male',
-        photoURL: null,
-        gameStats: UserGameStatsEntity(
-          xp: 1500,
-          level: 6,
-          currentStreak: 10,
-          longestStreak: 20,
-          lessonsCompleted: 30,
-          quizzesPassed: 12,
-        ),
-      ),
+    final result = await fetchUserProfile(GetUserProfileParams(userId: userId));
+    result.fold(
+      (failure) => _state = _state.error(failure.message ?? 'An unknown error occurred'),
+      (user) => _state = _state.loaded(user: user),
     );
     notifyListeners();
   }
 
-  Future<void> fetchUserStats(String userId) async {
+  Future<void> loadUserStats(String userId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      stats: UserGameStatsEntity(
-        xp: 1500,
-        level: 6,
-        currentStreak: 10,
-        longestStreak: 20,
-        lessonsCompleted: 30,
-        quizzesPassed: 12,
-      ),
+    final result = await fetchUserStats(GetUserGameStatsParams(userId: userId));
+    result.fold(
+      (failure) => _state = _state.error(failure.message ?? 'An unknown error occurred'),
+      (stats) => _state = _state.loaded(stats: stats),
     );
     notifyListeners();
   }
 
-  Future<void> fetchUserAchievements(String userId) async {
+  Future<void> loadUserAchievements(String userId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      achievements: [
-        UserAchievementEntity(
-          id: 'ach1',
-          title: 'First Lesson',
-          description: 'Completed your first lesson.',
-          iconUrl: 'https://via.placeholder.com/50',
-          unlockedAt: DateTime.now().subtract(const Duration(days: 5)),
-          isUnlocked: true,
-        ),
-        UserAchievementEntity(
-          id: 'ach2',
-          title: 'Quiz Master',
-          description: 'Passed 10 quizzes.',
-          iconUrl: 'https://via.placeholder.com/50',
-          unlockedAt: DateTime.now().subtract(const Duration(days: 2)),
-          isUnlocked: true,
-        ),
-        UserAchievementEntity(
-          id: 'ach3',
-          title: 'Streak Enthusiast',
-          description: 'Maintained a 7-day streak.',
-          iconUrl: 'https://via.placeholder.com/50',
-          unlockedAt: DateTime.now().subtract(const Duration(days: 1)),
-          isUnlocked: true,
-        ),
-        UserAchievementEntity(
-          id: 'ach4',
-          title: 'Level 10',
-          description: 'Reached level 10.',
-          iconUrl: 'https://via.placeholder.com/50',
-          unlockedAt: DateTime.now().add(
-            const Duration(days: 10),
-          ), // Future date for locked
-          isUnlocked: false,
-        ),
-      ],
+    final result = await fetchUserAchievements(GetUserAchievementsParams(userId: userId));
+    result.fold(
+      (failure) => _state = _state.error(failure.message ?? 'An unknown error occurred'),
+      (achievements) => _state = _state.loaded(achievements: achievements),
     );
     notifyListeners();
   }
 
-  void logout() {
-    // Implement logout logic
-    _state = ProfileState.initial();
+  Future<void> loadBadges() async {
+    _state = _state.loading();
+    notifyListeners();
+    final result = await fetchBadges(NoParams());
+    result.fold(
+      (failure) => _state = _state.error(failure.message ?? 'An unknown error occurred'),
+      (badges) => _state = _state.loaded(badges: badges),
+    );
+    notifyListeners();
+  }
+
+  void performLogout() async {
+    _state = _state.loading();
+    notifyListeners();
+    final result = await logout(NoParams());
+    result.fold(
+      (failure) => _state = _state.error(failure.message ?? 'An unknown error occurred'),
+      (_) => _state = ProfileState.initial(),
+    );
     notifyListeners();
   }
 }

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // Import LessonUnitEntity
+import 'package:sunnova_app/features/course/domain/usecases/get_course_detail.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_lesson_content.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_lesson_units.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_user_lesson_progress.dart';
+import 'package:sunnova_app/features/course/domain/usecases/mark_lesson_as_completed.dart';
 
 // Define LessonState
 class LessonState {
@@ -35,11 +40,25 @@ class LessonState {
 }
 
 class LessonNotifier extends ChangeNotifier {
+  final GetCourseDetail getCourseDetail;
+  final GetLessonUnits getLessonUnits;
+  final GetUserLessonProgress getUserLessonProgress;
+  final MarkLessonAsCompleted markLessonAsCompleted;
+  final GetLessonContent getLessonContent;
+
+  LessonNotifier({
+    required this.getCourseDetail,
+    required this.getLessonUnits,
+    required this.getUserLessonProgress,
+    required this.markLessonAsCompleted,
+    required this.getLessonContent,
+  });
+
   LessonState _state = LessonState.initial();
   LessonState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchLessonContent(String lessonId) async {
+  Future<void> loadLessonContent(String lessonId) async {
     _state = _state.loading();
     notifyListeners();
     // Simulate API call
@@ -59,7 +78,7 @@ class LessonNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> markLessonAsCompleted(String userId, String lessonId) async {
+  Future<void> completeLesson(String userId, String lessonId) async {
     // Simulate marking lesson as completed
     _state = _state.loaded(isCompleted: true);
     notifyListeners();

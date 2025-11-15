@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sunnova_app/features/course/domain/entities/user_lesson_progress_entity.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_course_detail.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_lesson_units.dart';
+import 'package:sunnova_app/features/course/domain/usecases/get_user_lesson_progress.dart';
 import 'package:sunnova_app/features/home/domain/entities/course_module_entity.dart'; // Import CourseModuleEntity
 import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // Import LessonUnitEntity and UserLessonProgressEntity
 
@@ -42,85 +46,88 @@ class CourseState {
 }
 
 class CourseNotifier extends ChangeNotifier {
+  final GetCourseDetail getCourseDetail;
+  final GetLessonUnits getLessonUnits;
+  final GetUserLessonProgress getUserLessonProgress;
+
+  CourseNotifier({
+    required this.getCourseDetail,
+    required this.getLessonUnits,
+    required this.getUserLessonProgress,
+  });
+
   CourseState _state = CourseState.initial();
   CourseState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchCourseDetail(String moduleId) async {
+  Future<void> loadCourseDetail(String moduleId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      selectedModule: CourseModuleEntity(
-        id: moduleId,
-        title: 'Tajwid Basic',
-        description: 'Learn the basics of Tajwid.',
-        imageUrl: 'https://via.placeholder.com/150',
-        requiredXpToUnlock: 0,
-        isLocked: false,
-        totalLessons: 10,
-        completedLessons: 3,
-      ),
+
+    final result = await getCourseDetail(GetCourseDetailParams(moduleId: moduleId));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        notifyListeners();
+      },
+      (module) {
+        _state = _state.loaded(selectedModule: module);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
-  Future<void> fetchLessonUnits(String moduleId) async {
+  Future<void> loadLessonUnits(String moduleId, String userId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      units: [
-        LessonUnitEntity(
-          id: 'lesson_1',
-          title: 'Introduction to Tajwid',
-          description: 'Understand the importance of Tajwid.',
-          content: 'Content for lesson 1',
-          durationMinutes: 15,
-        ),
-        LessonUnitEntity(
-          id: 'lesson_2',
-          title: 'Makharij al-Huruf',
-          description: 'Learn the points of articulation.',
-          content: 'Content for lesson 2',
-          durationMinutes: 20,
-        ),
-        LessonUnitEntity(
-          id: 'lesson_3',
-          title: 'Sifat al-Huruf',
-          description: 'Explore the characteristics of letters.',
-          content: 'Content for lesson 3',
-          durationMinutes: 25,
-        ),
-      ],
+
+    final result = await getLessonUnits(GetLessonUnitsParams(moduleId: moduleId, userId: userId));
+
+    result.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'An unknown error occurred');
+        notifyListeners();
+      },
+      (units) {
+        _state = _state.loaded(units: units);
+        notifyListeners();
+      },
     );
-    notifyListeners();
   }
 
-  Future<void> fetchUserProgress(String userId, String moduleId) async {
+  Future<void> loadUserProgress(String userId, String moduleId) async {
     _state = _state.loading();
     notifyListeners();
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-    _state = _state.loaded(
-      progressMap: {
-        'lesson_1': UserLessonProgressEntity(
-          userId: userId,
-          lessonId: 'lesson_1',
-          isCompleted: true,
-        ),
-        'lesson_2': UserLessonProgressEntity(
-          userId: userId,
-          lessonId: 'lesson_2',
-          isCompleted: false,
-        ),
-        'lesson_3': UserLessonProgressEntity(
-          userId: userId,
-          lessonId: 'lesson_3',
-          isCompleted: false,
-        ),
+
+    final unitsResult = await getLessonUnits(GetLessonUnitsParams(moduleId: moduleId, userId: userId));
+
+    await unitsResult.fold(
+      (failure) {
+        _state = _state.error(failure.message ?? 'An unknown error occurred');
+      },
+      (units) async {
+        final Map<String, UserLessonProgressEntity> progressMap = {};
+        bool hasError = false; // Flag to track if any individual progress fetch failed
+        for (var unit in units) {
+          final progressResult = await getUserLessonProgress(GetUserLessonProgressParams(userId: userId, lessonId: unit.id));
+          progressResult.fold(
+            (failure) {
+              hasError = true; // Mark that an error occurred
+              // Optionally, you could still add a default uncompleted state here if desired,
+              // but for this test, we want to ensure the overall state is error if any sub-fetch fails.
+            },
+            (progress) {
+              progressMap[unit.id] = progress;
+            },
+          );
+        }
+
+        if (hasError) {
+          _state = _state.error('Failed to fetch some lesson progress.');
+        } else {
+          _state = _state.loaded(units: units, progressMap: progressMap);
+        }
       },
     );
     notifyListeners();

@@ -55,7 +55,7 @@ class RankItem extends StatelessWidget {
               ),
             const SizedBox(width: 8),
             Text(
-              '${rank.xp} XP',
+              '${rank.scoreValue} XP',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: isCurrentUser
                     ? Theme.of(context).colorScheme.onSecondaryContainer

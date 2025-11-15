@@ -21,7 +21,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         context,
         listen: false,
       );
-      leaderboardNotifier.fetchLeaderboard('WEEKLY'); // Fetch initial data
+      leaderboardNotifier.loadLeaderboard('WEEKLY'); // Fetch initial data
     });
   }
 
@@ -59,8 +59,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             currentUserRankItem = LeaderboardRankEntity(
               userId: 'current_user_id',
               userName: 'You',
-              xp: 0,
+              scoreValue: 0,
               rank: leaderboardNotifier.state.currentUserRank ?? 0,
+              userPhotoUrl: 'https://via.placeholder.com/50',
+              rankType: leaderboardNotifier.state.selectedFilter,
             );
           }
 
@@ -96,13 +98,18 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                         ),
                         const SizedBox(width: 16),
                         CircleAvatar(
+                          backgroundImage: currentUserRankItem.userPhotoUrl != null
+                              ? NetworkImage(currentUserRankItem.userPhotoUrl!)
+                              : const AssetImage('assets/images/default_avatar.png') as ImageProvider, // Provide a default asset image
                           backgroundColor: Theme.of(
                             context,
                           ).colorScheme.primary,
-                          child: Icon(
-                            Icons.person,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
+                          child: currentUserRankItem.userPhotoUrl == null
+                              ? const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -117,7 +124,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                           ),
                         ),
                         Text(
-                          '${currentUserRankItem.xp} XP',
+                          '${currentUserRankItem.scoreValue} XP',
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 color: Theme.of(

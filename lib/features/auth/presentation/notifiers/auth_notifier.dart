@@ -10,23 +10,23 @@ import 'package:sunnova_app/features/auth/domain/usecases/register_user.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
-class _AuthState extends Equatable {
+class AuthState extends Equatable {
   final AuthStatus status;
   final UserEntity? user;
   final String? errorMessage;
 
-  const _AuthState({
+  const AuthState({
     this.status = AuthStatus.initial,
     this.user,
     this.errorMessage,
   });
 
-  _AuthState copyWith({
+  AuthState copyWith({
     AuthStatus? status,
     UserEntity? user,
     String? errorMessage,
   }) {
-    return _AuthState(
+    return AuthState(
       status: status ?? this.status,
       user: user ?? this.user,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -50,8 +50,8 @@ class AuthNotifier extends ChangeNotifier {
     required this.getUserProfile,
   });
 
-  _AuthState _state = const _AuthState();
-  _AuthState get state => _state;
+  AuthState _state = const AuthState();
+  AuthState get state => _state;
 
   Future<void> login(String email, String password) async {
     _state = _state.copyWith(status: AuthStatus.loading);
@@ -155,14 +155,14 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   String _mapFailureToMessage(Failure failure) {
-    switch (failure.runtimeType) {
-      case ServerFailure:
+    switch (failure) {
+      case ServerFailure():
         return 'Server Error';
-      case CacheFailure:
+      case CacheFailure():
         return 'Cache Error';
-      case DatabaseFailure:
+      case DatabaseFailure():
         return 'Database Error';
-      case NetworkFailure:
+      case NetworkFailure():
         return 'Network Error';
       default:
         return 'Unexpected Error';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sunnova_app/features/course/presentation/notifiers/lesson_notifier.dart'; // Import LessonNotifier
-import 'package:sunnova_app/features/course/domain/entities/lesson_unit_entity.dart'; // Import LessonUnitEntity
 import 'package:sunnova_app/features/quiz/presentation/pages/quiz_page.dart'; // Import QuizPage
 
 class LessonContentPage extends StatefulWidget {
@@ -22,7 +21,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
         context,
         listen: false,
       );
-      lessonNotifier.fetchLessonContent(widget.lessonId);
+      lessonNotifier.loadLessonContent(widget.lessonId);
     });
   }
 
@@ -94,7 +93,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
                 ElevatedButton(
                   onPressed: () {
                     // Mark lesson as completed
-                    lessonNotifier.markLessonAsCompleted(
+                    lessonNotifier.completeLesson(
                       'current_user_id',
                       lesson.id,
                     );

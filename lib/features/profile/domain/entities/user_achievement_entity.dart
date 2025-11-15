@@ -2,28 +2,19 @@ import 'package:equatable/equatable.dart';
 
 class UserAchievementEntity extends Equatable {
   final String id;
-  final String title;
-  final String description;
-  final String iconUrl;
+  final String userId;
+  final String badgeId;
   final DateTime unlockedAt;
-  final bool isUnlocked;
+  final bool isNew;
 
   const UserAchievementEntity({
     required this.id,
-    required this.title,
-    required this.description,
-    required this.iconUrl,
+    required this.userId,
+    required this.badgeId,
     required this.unlockedAt,
-    required this.isUnlocked,
+    required this.isNew,
   });
 
   @override
-  List<Object?> get props => [
-    id,
-    title,
-    description,
-    iconUrl,
-    unlockedAt,
-    isUnlocked,
-  ];
+  List<Object?> get props => [id, userId, badgeId, unlockedAt, isNew];
 }

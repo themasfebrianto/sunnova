@@ -21,7 +21,7 @@ class _QuizPageState extends State<QuizPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final quizNotifier = Provider.of<QuizNotifier>(context, listen: false);
-      quizNotifier.fetchQuizQuestions(widget.lessonId);
+      quizNotifier.loadQuizQuestions(widget.lessonId);
     });
   }
 
@@ -75,7 +75,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 const SizedBox(height: 20),
                 // Question Card
-                QuestionCard(question: currentQuestion.questionText),
+                QuestionCard(question: currentQuestion.question),
                 const SizedBox(height: 20),
                 // Options
                 Expanded(
@@ -124,7 +124,7 @@ class _QuizPageState extends State<QuizPage> {
                         // Wrap with Expanded
                         child: ElevatedButton(
                           onPressed: () {
-                            quizNotifier.submitQuiz(
+                            quizNotifier.performSubmitQuiz(
                               'current_user_id',
                               widget.lessonId,
                             );

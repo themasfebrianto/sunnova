@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sunnova_app/features/quiz/domain/entities/assessment_question_entity.dart'; // Import AssessmentQuestionEntity
+import 'package:sunnova_app/features/quiz/domain/usecases/get_quiz_questions.dart';
+import 'package:sunnova_app/features/quiz/domain/usecases/submit_quiz_answers.dart';
 
 // Define QuizState
 class QuizState {
@@ -53,11 +55,19 @@ class QuizState {
 }
 
 class QuizNotifier extends ChangeNotifier {
+  final GetQuizQuestions getQuizQuestions;
+  final SubmitQuizAnswers submitQuizAnswers;
+
+  QuizNotifier({
+    required this.getQuizQuestions,
+    required this.submitQuizAnswers,
+  });
+
   QuizState _state = QuizState.initial();
   QuizState get state => _state;
 
   // Placeholder methods
-  Future<void> fetchQuizQuestions(String lessonId) async {
+  Future<void> loadQuizQuestions(String lessonId) async {
     _state = _state.loading();
     notifyListeners();
     // Simulate API call
@@ -67,26 +77,32 @@ class QuizNotifier extends ChangeNotifier {
         AssessmentQuestionEntity(
           id: 'q1',
           lessonId: lessonId,
-          questionText: 'What is the first letter of the Arabic alphabet?',
-          options: ['Alif', 'Ba', 'Ta', 'Tha'],
-          correctOptionIndex: 0,
+          question: 'What is the first letter of the Arabic alphabet?',
+          options: const ['Alif', 'Ba', 'Ta', 'Tha'],
+          correctAnswerIndex: 0,
           explanation: 'Alif is the first letter.',
+          difficultyLevel: 1,
+          ordering: 1,
         ),
         AssessmentQuestionEntity(
           id: 'q2',
           lessonId: lessonId,
-          questionText: 'Which of these is a heavy letter?',
-          options: ['Ta', 'Dal', 'Sad', 'Kaf'],
-          correctOptionIndex: 2,
+          question: 'Which of these is a heavy letter?',
+          options: const ['Ta', 'Dal', 'Sad', 'Kaf'],
+          correctAnswerIndex: 2,
           explanation: 'Sad is a heavy letter.',
+          difficultyLevel: 2,
+          ordering: 2,
         ),
         AssessmentQuestionEntity(
           id: 'q3',
           lessonId: lessonId,
-          questionText: 'How many harakat is a Fatha?',
-          options: ['One', 'Two', 'Three', 'Four'],
-          correctOptionIndex: 0,
+          question: 'How many harakat is a Fatha?',
+          options: const ['One', 'Two', 'Three', 'Four'],
+          correctAnswerIndex: 0,
           explanation: 'A Fatha is one harakah.',
+          difficultyLevel: 1,
+          ordering: 3,
         ),
       ],
     );
@@ -118,13 +134,13 @@ class QuizNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> submitQuiz(String userId, String lessonId) async {
+  Future<void> performSubmitQuiz(String userId, String lessonId) async {
     _state = _state.loading();
     notifyListeners();
 
     int correct = 0;
     for (int i = 0; i < _state.questions.length; i++) {
-      if (_state.userAnswers[i] == _state.questions[i].correctOptionIndex) {
+      if (_state.userAnswers[i] == _state.questions[i].correctAnswerIndex) {
         correct++;
       }
     }

@@ -17,6 +17,8 @@ import 'package:sunnova_app/features/home/presentation/pages/home_page.dart'; //
 import 'package:sunnova_app/injection_container.dart'
     as di; // Import as di (dependency injection)
 import 'package:sqflite/sqflite.dart'; // Import for databaseFactory
+import 'package:sunnova_app/core/db/database_seeder.dart'; // Import database seeder
+import 'package:sunnova_app/core/db/database_helper.dart'; // Import database helper
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,18 +28,23 @@ Future<void> main() async {
   }
 
   await di.init(); // Initialize dependency injection
+
+  // Seed the database
+  final databaseHelper = di.sl<DatabaseHelper>();
+  await seedDatabase(databaseHelper);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => di.sl<AuthNotifier>(),
         ), // Use GetIt to provide AuthNotifier
-        ChangeNotifierProvider(create: (_) => HomeNotifier()),
-        ChangeNotifierProvider(create: (_) => CourseNotifier()),
-        ChangeNotifierProvider(create: (_) => LessonNotifier()),
-        ChangeNotifierProvider(create: (_) => QuizNotifier()),
-        ChangeNotifierProvider(create: (_) => ProfileNotifier()),
-        ChangeNotifierProvider(create: (_) => LeaderboardNotifier()),
+        ChangeNotifierProvider(create: (_) => di.sl<HomeNotifier>()),
+        ChangeNotifierProvider(create: (_) => di.sl<CourseNotifier>()),
+        ChangeNotifierProvider(create: (_) => di.sl<LessonNotifier>()),
+        ChangeNotifierProvider(create: (_) => di.sl<QuizNotifier>()),
+        ChangeNotifierProvider(create: (_) => di.sl<ProfileNotifier>()),
+        ChangeNotifierProvider(create: (_) => di.sl<LeaderboardNotifier>()),
       ],
       child: const MyApp(),
     ),
@@ -70,116 +77,24 @@ class MyApp extends StatelessWidget {
     const Color textTertiary = Color(0xFF9CA3AF); // Soft gray
 
     // === Gamification Colors (more pastel, more fun) ===
-    const Color xpBlue = Color(0xFFAED9FF); // Pastel sky blue
-    const Color xpBlueDark = Color(0xFF7FB8E8);
-
-    const Color streakOrange = Color(0xFFFFC9A9); // Pastel apricot
-    const Color streakOrangeDark = Color(0xFFFFA97A);
-
-    const Color badgeYellow = Color(0xFFFFE49B); // Pastel yellow
     const Color levelPurple = Color(0xFFCABDFF); // Soft pastel purple
 
     // === Status Colors (Softened) ===
-    const Color successGreen = Color(0xFFB6EFB3); // Pastel success
-    const Color successGreenDark = Color(0xFF8EDB8A);
-
     const Color errorRed = Color(0xFFFFB4B4); // Pastel red
-    const Color warningAmber = Color(0xFFFFD8A8); // Pastel amber
-    const Color infoBlue = Color(0xFFAED4FF); // Pastel info
-
-    // === Semantic Colors ===
-    const Color lockedGray = Color(0xFFE7E7E7);
-    const Color completedGreen = Color(0xFFCAF7C9);
-    const Color inProgressBlue = Color(0xFFCBE4FF);
-
-    // === Revised Gradients (Softer, Material-ish) ===
-    const LinearGradient primaryGradient = LinearGradient(
-      colors: [Color(0xFF8EE5D1), Color(0xFFD7FFF6)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-
-    const LinearGradient xpGradient = LinearGradient(
-      colors: [Color(0xFFAED9FF), Color(0xFF7FB8E8)],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    );
-
-    const LinearGradient streakGradient = LinearGradient(
-      colors: [Color(0xFFFFC9A9), Color(0xFFFFA97A)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    );
-
-    const LinearGradient cardGradient = LinearGradient(
-      colors: [Color(0xFFFFFFFF), Color(0xFFF8F9FA)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
 
     // === Spacing Constants ===
-    const double space4 = 4.0; // Micro spacing
-    const double space8 = 8.0; // Tiny spacing
     const double space12 = 12.0; // Small spacing
     const double space16 = 16.0; // Base spacing
-    const double space20 = 20.0; // Medium spacing
     const double space24 = 24.0; // Large spacing
-    const double space32 = 32.0; // XL spacing
-    const double space40 = 40.0; // XXL spacing
-    const double space48 = 48.0; // Huge spacing
-    const double space64 = 64.0; // Massive spacing
 
     // === Padding Presets ===
-    const EdgeInsets pagePadding = EdgeInsets.all(space16);
-    const EdgeInsets cardPadding = EdgeInsets.all(space16);
-    const EdgeInsets sectionPadding = EdgeInsets.symmetric(
-      horizontal: space16,
-      vertical: space12,
-    );
     const EdgeInsets buttonPadding = EdgeInsets.symmetric(
       horizontal: space24,
       vertical: space12,
     );
 
     // === Border Radius ===
-    const double radiusSmall = 8.0; // Input fields, chips
     const double radiusMedium = 12.0; // Cards, buttons
-    const double radiusLarge = 16.0; // Modal, sheets
-    const double radiusXL = 24.0; // Hero cards
-    const double radiusFull = 9999.0; // Circular elements
-
-    // === Elevation Shadows (Soft) ===
-    final List<BoxShadow> elevationLow = [
-      BoxShadow(
-        color: Colors.black.withAlpha((255 * 0.04).round()),
-        blurRadius: 8,
-        offset: Offset(0, 2),
-      ),
-    ];
-
-    final List<BoxShadow> elevationMedium = [
-      BoxShadow(
-        color: Colors.black.withAlpha((255 * 0.06).round()),
-        blurRadius: 12,
-        offset: Offset(0, 4),
-      ),
-    ];
-
-    final List<BoxShadow> elevationHigh = [
-      BoxShadow(
-        color: Colors.black.withAlpha((255 * 0.08).round()),
-        blurRadius: 16,
-        offset: Offset(0, 8),
-      ),
-    ];
-
-    final List<BoxShadow> elevationXL = [
-      BoxShadow(
-        color: Colors.black.withAlpha((255 * 0.1).round()),
-        blurRadius: 24,
-        offset: Offset(0, 12),
-      ),
-    ];
 
     // === Typography (Google Sans & Inter) ===
     // Heading Styles
@@ -282,34 +197,8 @@ class MyApp extends StatelessWidget {
       height: 1.45,
     );
 
-    // Special Styles
-    final TextStyle numberDisplay = GoogleFonts.plusJakartaSans(
-      fontSize: 36,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -1,
-      color: primaryColor,
-      height: 1.2,
-    );
-
-    final TextStyle badgeText = GoogleFonts.inter(
-      fontSize: 10,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.5,
-      color: Colors.white,
-      height: 1.2,
-    );
-    // === Icon Sizes ===
-    const double iconSmall = 16.0;
-    const double iconMedium = 20.0;
-    const double iconLarge = 24.0;
-    const double iconXL = 32.0;
-    const double iconXXL = 48.0;
-
     // === Icon Colors ===
     const Color iconPrimary = textPrimary;
-    const Color iconSecondary = textSecondary;
-    const Color iconTertiary = textTertiary;
-    const Color iconAccent = primaryColor;
 
     return MaterialApp(
       theme: ThemeData(
@@ -372,7 +261,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           centerTitle: false,
           titleTextStyle: titleLarge,
-          iconTheme: const IconThemeData(color: textPrimary),
+          iconTheme: const IconThemeData(color: iconPrimary),
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           surfaceTintColor:
               Colors.transparent, // Disable default Material 3 tint

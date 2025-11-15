@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:sunnova_app/features/profile/domain/entities/user_achievement_entity.dart'; // Import UserAchievementEntity
+import 'package:sunnova_app/features/profile/domain/entities/badge_entity.dart'; // Import BadgeEntity
 
 class AchievementItem extends StatelessWidget {
   final UserAchievementEntity achievement;
+  final BadgeEntity badge;
 
-  const AchievementItem({super.key, required this.achievement});
+  const AchievementItem({super.key, required this.achievement, required this.badge});
 
   @override
   Widget build(BuildContext context) {
+    final bool isUnlocked = achievement.unlockedAt.isBefore(DateTime.now());
+
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -16,14 +20,14 @@ class AchievementItem extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: achievement.isUnlocked
+              backgroundColor: isUnlocked
                   ? Theme.of(context).colorScheme.primaryContainer
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Icon(
                 Icons.emoji_events, // Placeholder icon, could be dynamic
-                color: achievement.isUnlocked
+                color: isUnlocked
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
               ),
             ),
             const SizedBox(width: 16),
@@ -32,11 +36,11 @@ class AchievementItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    achievement.title,
+                    badge.title,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    achievement.description,
+                    badge.description,
                     style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -44,7 +48,7 @@ class AchievementItem extends StatelessWidget {
                 ],
               ),
             ),
-            if (achievement.isUnlocked)
+            if (isUnlocked)
               Text(
                 DateFormat('MMM d, yyyy').format(achievement.unlockedAt),
                 style: Theme.of(context).textTheme.labelSmall,

@@ -5,9 +5,14 @@ import 'package:sunnova_app/features/course/presentation/widgets/lesson_unit_car
 import 'package:sunnova_app/features/course/presentation/pages/lesson_content_page.dart'; // Import LessonContentPage
 
 class CourseDetailPage extends StatefulWidget {
-  final String courseModuleId; // ID of the course module to display
+  final String courseModuleId;
+  final String userModuleId;
 
-  const CourseDetailPage({super.key, required this.courseModuleId});
+  const CourseDetailPage({
+    super.key,
+    required this.courseModuleId,
+    required this.userModuleId,
+  });
 
   @override
   State<CourseDetailPage> createState() => _CourseDetailPageState();
@@ -22,13 +27,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         context,
         listen: false,
       );
-      courseNotifier.fetchCourseDetail(widget.courseModuleId);
-      courseNotifier.fetchLessonUnits(widget.courseModuleId);
-      // Assuming a user ID is available globally or passed
-      courseNotifier.fetchUserProgress(
-        'current_user_id',
+      courseNotifier.loadCourseDetail(widget.courseModuleId);
+      courseNotifier.loadLessonUnits(
         widget.courseModuleId,
+        widget.userModuleId,
       );
+      // Assuming a user ID is available globally or passed
+      courseNotifier.loadUserProgress('current_user_id', widget.courseModuleId);
     });
   }
 
